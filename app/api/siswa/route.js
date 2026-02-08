@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
-import { v4 as uuidv4 } from 'uuid';
-import { readExcel, writeExcel, appendRow, updateRow, deleteRow, findByField } from '@/lib/excel';
+import { supabase } from '@/lib/supabase';
 import { getUserFromRequest, generateCredentials, hashPassword } from '@/lib/auth';
-import { DATA_FILES } from '@/lib/constants';
 
 // GET - List all students (admin only)
 export async function GET(request) {
@@ -19,18 +17,26 @@ export async function GET(request) {
         const { searchParams } = new URL(request.url);
         const organisasi = searchParams.get('organisasi');
 
-        let siswa = readExcel(DATA_FILES.SISWA);
+        let query = supabase
+            .from('siswa')
+            .select('*')
+            .order('created_at', { ascending: false });
 
-        // Filter by organization if specified
         if (organisasi) {
-            siswa = siswa.filter(s => s.organisasi === organisasi);
+            query = query.eq('organisasi', organisasi);
         }
 
-        // Remove password from response
+        const { data: siswa, error } = await query;
+
+        if (error) throw error;
+
+        // Remove password hash from response, but keep sandi_plain for admin view if needed
         const safeSiswa = siswa.map(s => ({
             ...s,
-            sandi: undefined,
-            sandiPlain: undefined
+            sandi_hash: undefined,
+            // Map snake_case to camelCase for frontend compatibility if necessary, 
+            // but let's keep it consistent with DB for now or map it back
+            sandiPlain: s.sandi_plain // maintain existing key name for UI
         }));
 
         return NextResponse.json({ success: true, data: safeSiswa });
@@ -57,9 +63,8 @@ export async function POST(request) {
         }
 
         const body = await request.json();
-        const { nama, kelas, jabatan, organisasi } = body;
+        const { nama, kelas, organisasi } = body;
 
-        // Validation - Jabatan is no longer strictly required from client, defaults to 'Anggota'
         if (!nama || !kelas || !organisasi) {
             return NextResponse.json(
                 { error: 'Nama, Kelas, dan Organisasi harus diisi' },
@@ -76,25 +81,26 @@ export async function POST(request) {
         const credentials = generateCredentials(prefix);
         const hashedPassword = await hashPassword(credentials.sandi);
 
-        const newSiswa = {
-            id: uuidv4(),
-            kode: credentials.kode,
-            sandi: hashedPassword,
-            sandiPlain: credentials.sandi, // Store plain password for admin to view
-            nama,
-            kelas,
-            jabatan: jabatan || 'Anggota', // Default to Anggota if not provided
-            organisasi,
-            createdAt: new Date().toISOString()
-        };
+        const { data: newSiswa, error } = await supabase
+            .from('siswa')
+            .insert([{
+                kode: credentials.kode,
+                sandi_hash: hashedPassword,
+                sandi_plain: credentials.sandi,
+                nama,
+                kelas,
+                organisasi
+            }])
+            .select()
+            .single();
 
-        appendRow(DATA_FILES.SISWA, newSiswa);
+        if (error) throw error;
 
         return NextResponse.json({
             success: true,
             data: {
                 ...newSiswa,
-                sandi: undefined,
+                sandi_hash: undefined,
                 credentials: {
                     kode: credentials.kode,
                     sandi: credentials.sandi
@@ -124,7 +130,7 @@ export async function PUT(request) {
         }
 
         const body = await request.json();
-        const { id, nama, kelas, jabatan, organisasi } = body;
+        const { id, nama, kelas, organisasi } = body;
 
         if (!id) {
             return NextResponse.json(
@@ -133,22 +139,17 @@ export async function PUT(request) {
             );
         }
 
-        const existingSiswa = findByField(DATA_FILES.SISWA, 'id', id);
-
-        if (!existingSiswa) {
-            return NextResponse.json(
-                { error: 'Siswa tidak ditemukan' },
-                { status: 404 }
-            );
-        }
-
         const updateData = {};
         if (nama) updateData.nama = nama;
         if (kelas) updateData.kelas = kelas;
-        if (jabatan) updateData.jabatan = jabatan;
         if (organisasi) updateData.organisasi = organisasi;
 
-        updateRow(DATA_FILES.SISWA, id, updateData);
+        const { error } = await supabase
+            .from('siswa')
+            .update(updateData)
+            .eq('id', id);
+
+        if (error) throw error;
 
         return NextResponse.json({
             success: true,
@@ -186,14 +187,12 @@ export async function DELETE(request) {
             );
         }
 
-        const deleted = deleteRow(DATA_FILES.SISWA, id);
+        const { error, count } = await supabase
+            .from('siswa')
+            .delete()
+            .eq('id', id);
 
-        if (!deleted) {
-            return NextResponse.json(
-                { error: 'Siswa tidak ditemukan' },
-                { status: 404 }
-            );
-        }
+        if (error) throw error;
 
         return NextResponse.json({
             success: true,
@@ -208,3 +207,4 @@ export async function DELETE(request) {
         );
     }
 }
+

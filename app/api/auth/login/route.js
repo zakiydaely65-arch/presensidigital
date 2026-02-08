@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { findByField, readExcel } from '@/lib/excel';
-import { verifyPassword, signToken, hashPassword } from '@/lib/auth';
-import { ADMIN_CREDENTIALS, DATA_FILES } from '@/lib/constants';
+import { supabase } from '@/lib/supabase';
+import { verifyPassword, signToken } from '@/lib/auth';
+import { ADMIN_CREDENTIALS } from '@/lib/constants';
 
 export async function POST(request) {
     try {
@@ -42,10 +42,14 @@ export async function POST(request) {
             return response;
         }
 
-        // Find student by code
-        const siswa = findByField(DATA_FILES.SISWA, 'kode', kode);
+        // Find student by code in Supabase
+        const { data: siswa, error } = await supabase
+            .from('siswa')
+            .select('*')
+            .eq('kode', kode)
+            .single();
 
-        if (!siswa) {
+        if (error || !siswa) {
             return NextResponse.json(
                 { error: 'Kode atau sandi salah' },
                 { status: 401 }
@@ -53,7 +57,7 @@ export async function POST(request) {
         }
 
         // Verify password
-        const isValid = await verifyPassword(sandi, siswa.sandi);
+        const isValid = await verifyPassword(sandi, siswa.sandi_hash);
 
         if (!isValid) {
             return NextResponse.json(
@@ -77,7 +81,6 @@ export async function POST(request) {
                 id: siswa.id,
                 nama: siswa.nama,
                 kelas: siswa.kelas,
-                jabatan: siswa.jabatan,
                 organisasi: siswa.organisasi,
                 role: 'siswa'
             }
@@ -100,3 +103,4 @@ export async function POST(request) {
         );
     }
 }
+

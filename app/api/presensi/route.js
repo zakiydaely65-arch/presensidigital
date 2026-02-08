@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
-import { v4 as uuidv4 } from 'uuid';
-import { readExcel, appendRow, getDataByDateRange, findByField } from '@/lib/excel';
+import { supabase } from '@/lib/supabase';
 import { getUserFromRequest } from '@/lib/auth';
 import { isWithinSchool } from '@/lib/geolocation';
-import { DATA_FILES, ATTENDANCE_STATUS } from '@/lib/constants';
+import { ATTENDANCE_STATUS } from '@/lib/constants';
 
 // GET - Get attendance records
 export async function GET(request) {
@@ -23,54 +22,43 @@ export async function GET(request) {
         const organisasi = searchParams.get('organisasi');
         const siswaId = searchParams.get('siswaId');
 
-        let presensi = readExcel(DATA_FILES.PRESENSI);
+        let query = supabase
+            .from('presensi')
+            .select('*, siswa(*)')
+            .order('tanggal', { ascending: false })
+            .order('waktu', { ascending: false });
 
         // Filter by date range
         if (startDate && endDate) {
-            const start = new Date(startDate);
-            start.setHours(0, 0, 0, 0);
-            const end = new Date(endDate);
-            end.setHours(23, 59, 59, 999);
-
-            presensi = presensi.filter(p => {
-                const date = new Date(p.tanggal);
-                return date >= start && date <= end;
-            });
+            query = query.gte('tanggal', startDate).lte('tanggal', endDate);
         }
 
         // If student, show only their own records
         if (user.role === 'siswa') {
-            presensi = presensi.filter(p => p.siswaId === user.id);
+            query = query.eq('siswa_id', user.id);
         } else {
             // Admin filters
             if (siswaId) {
-                presensi = presensi.filter(p => p.siswaId === siswaId);
+                query = query.eq('siswa_id', siswaId);
             }
 
             if (organisasi) {
-                // Get students of this organization
-                const siswaList = readExcel(DATA_FILES.SISWA);
-                const siswaIds = siswaList
-                    .filter(s => s.organisasi === organisasi)
-                    .map(s => s.id);
-                presensi = presensi.filter(p => siswaIds.includes(p.siswaId));
+                query = query.eq('siswa.organisasi', organisasi);
             }
         }
 
-        // Enrich with student data
-        const siswaList = readExcel(DATA_FILES.SISWA);
-        const enrichedPresensi = presensi.map(p => {
-            const siswa = siswaList.find(s => s.id === p.siswaId);
-            return {
-                ...p,
-                namaSiswa: siswa?.nama || 'Unknown',
-                kelasSiswa: siswa?.kelas || 'Unknown',
-                organisasiSiswa: siswa?.organisasi || 'Unknown'
-            };
-        });
+        const { data: presensi, error } = await query;
 
-        // Sort by date desc
-        enrichedPresensi.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+        if (error) throw error;
+
+        // Enrich and format for frontend compatibility
+        const enrichedPresensi = presensi.map(p => ({
+            ...p,
+            siswaId: p.siswa_id, // Map back to camelCase for UI if needed
+            namaSiswa: p.siswa?.nama || 'Unknown',
+            kelasSiswa: p.siswa?.kelas || 'Unknown',
+            organisasiSiswa: p.siswa?.organisasi || 'Unknown'
+        }));
 
         return NextResponse.json({ success: true, data: enrichedPresensi });
 
@@ -119,7 +107,6 @@ export async function POST(request) {
 
         // Validate status based on location
         if (atSchool) {
-            // At school: can only mark "hadir" or "pulang"
             if (status !== ATTENDANCE_STATUS.HADIR && status !== ATTENDANCE_STATUS.PULANG) {
                 return NextResponse.json(
                     { error: 'Anda berada di sekolah. Hanya bisa memilih Hadir atau Pulang.' },
@@ -127,7 +114,6 @@ export async function POST(request) {
                 );
             }
         } else {
-            // Outside school: can only mark "izin" or "sakit"
             if (status !== ATTENDANCE_STATUS.IZIN && status !== ATTENDANCE_STATUS.SAKIT) {
                 return NextResponse.json(
                     { error: 'Anda berada di luar sekolah. Hanya bisa memilih Izin atau Sakit.' },
@@ -137,38 +123,39 @@ export async function POST(request) {
         }
 
         // Check if already submitted attendance today with same status type
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const todayStr = today.toISOString().split('T')[0];
+        const todayStr = new Date().toISOString().split('T')[0];
 
-        const existingPresensi = readExcel(DATA_FILES.PRESENSI);
-        const todayPresensi = existingPresensi.filter(p =>
-            p.siswaId === user.id &&
-            p.tanggal.startsWith(todayStr)
-        );
+        const { data: existing, error: checkError } = await supabase
+            .from('presensi')
+            .select('id')
+            .eq('siswa_id', user.id)
+            .eq('tanggal', todayStr)
+            .eq('status', status)
+            .maybeSingle();
 
-        // Check for duplicate same-type attendance
-        const hasSameStatus = todayPresensi.some(p => p.status === status);
-        if (hasSameStatus) {
+        if (checkError) throw checkError;
+
+        if (existing) {
             return NextResponse.json(
                 { error: `Anda sudah melakukan presensi dengan status "${status}" hari ini` },
                 { status: 400 }
             );
         }
 
-        const now = new Date();
-        const newPresensi = {
-            id: uuidv4(),
-            siswaId: user.id,
-            tanggal: now.toISOString(),
-            waktu: now.toTimeString().split(' ')[0],
-            status,
-            latitude,
-            longitude,
-            isAtSchool: atSchool
-        };
+        const { data: newPresensi, error: insertError } = await supabase
+            .from('presensi')
+            .insert([{
+                siswa_id: user.id,
+                status,
+                latitude,
+                longitude,
+                is_at_school: atSchool
+                // tanggal and waktu default to current_date and current_time in Postgres
+            }])
+            .select()
+            .single();
 
-        appendRow(DATA_FILES.PRESENSI, newPresensi);
+        if (insertError) throw insertError;
 
         return NextResponse.json({
             success: true,
@@ -184,3 +171,4 @@ export async function POST(request) {
         );
     }
 }
+
