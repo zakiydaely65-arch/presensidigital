@@ -16,12 +16,6 @@ export default function SiswaPage() {
   const [todayPresensi, setTodayPresensi] = useState([]);
   const [message, setMessage] = useState({ type: '', text: '' });
 
-  useEffect(() => {
-    fetchUser();
-    requestLocation();
-    fetchTodayPresensi();
-  }, []);
-
   const fetchUser = async () => {
     try {
       const res = await fetch('/api/auth/me');
@@ -49,49 +43,70 @@ export default function SiswaPage() {
     }
   };
 
-  const requestLocation = () => {
-    setLocationError('');
+  useEffect(() => {
+    fetchUser();
+    fetchTodayPresensi();
 
-    if (!navigator.geolocation) {
+    // Start real-time GPS tracking
+    let watcherId = null;
+    if (navigator.geolocation) {
+      watcherId = navigator.geolocation.watchPosition(
+        (position) => {
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
+          const gpsAccuracy = Math.round(position.coords.accuracy);
+
+          setLocation({ latitude: userLat, longitude: userLng });
+          setAccuracy(gpsAccuracy);
+
+          // Calculate distance using Haversine formula
+          const dist = calculateDistance(userLat, userLng, SCHOOL_COORDS.latitude, SCHOOL_COORDS.longitude);
+          setDistance(dist);
+          setIsAtSchool(dist <= SCHOOL_RADIUS);
+          setLocationError(''); // clear any previous errors string
+        },
+        (error) => {
+          let msg = 'Gagal mendapatkan lokasi';
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              msg = 'Akses lokasi ditolak. Mohon izinkan akses lokasi di browser Anda.';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              msg = 'Informasi lokasi tidak tersedia.';
+              break;
+            case error.TIMEOUT:
+              // For watchPosition, timeout just means this specific poll failed, 
+              // it will try again, so we don't necessarily overwrite a good location.
+              if (!location) msg = 'Sedang mencari sinyal GPS... (mungkin butuh waktu di dalam ruangan)';
+              break;
+          }
+          if (!location) setLocationError(msg);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    } else {
       setLocationError('Browser Anda tidak mendukung Geolocation');
-      return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const userLat = position.coords.latitude;
-        const userLng = position.coords.longitude;
-        const gpsAccuracy = Math.round(position.coords.accuracy);
-
-        setLocation({ latitude: userLat, longitude: userLng });
-        setAccuracy(gpsAccuracy);
-
-        // Calculate distance using Haversine formula
-        const dist = calculateDistance(userLat, userLng, SCHOOL_COORDS.latitude, SCHOOL_COORDS.longitude);
-        setDistance(dist);
-        setIsAtSchool(dist <= SCHOOL_RADIUS);
-      },
-      (error) => {
-        let msg = 'Gagal mendapatkan lokasi';
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            msg = 'Akses lokasi ditolak. Mohon izinkan akses lokasi di browser Anda.';
-            break;
-          case error.POSITION_UNAVAILABLE:
-            msg = 'Informasi lokasi tidak tersedia.';
-            break;
-          case error.TIMEOUT:
-            msg = 'Waktu permintaan lokasi habis.';
-            break;
-        }
-        setLocationError(msg);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 0
+    // Cleanup watcher when component unmounts
+    return () => {
+      if (watcherId !== null && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watcherId);
       }
-    );
+    };
+  }, []); // Run once on mount
+
+  const requestLocation = () => {
+    // Since we now use watchPosition, this button can just show a refreshing state
+    // but the geolocation API is actually constantly querying already.
+    // We can clear location to trigger a UI "loading" state briefly
+    setLocation(null);
+    setDistance(null);
+    setAccuracy(null);
   };
 
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
