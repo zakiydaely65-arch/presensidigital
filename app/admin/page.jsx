@@ -21,12 +21,10 @@ export default function AdminDashboard() {
 
   const fetchData = async () => {
     try {
-      // Fetch students
       const siswaRes = await fetch('/api/siswa');
       const siswaData = await siswaRes.json();
 
-      // Fetch today's attendance
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
       const presensiRes = await fetch(`/api/presensi?startDate=${today}&endDate=${today}`);
       const presensiData = await presensiRes.json();
 
@@ -55,168 +53,166 @@ export default function AdminDashboard() {
 
   const getStatusBadge = (status) => {
     const badges = {
-      hadir: 'bg-green-100 text-green-800',
-      izin: 'bg-yellow-100 text-yellow-800',
-      sakit: 'bg-red-100 text-red-800',
-      pulang: 'bg-blue-100 text-blue-800'
+      hadir: 'badge-success',
+      izin: 'badge-warning',
+      sakit: 'badge-danger',
+      pulang: 'badge-accent'
     };
-    return badges[status] || 'bg-gray-100 text-gray-800';
+    return badges[status] || 'badge-primary';
   };
 
   if (loading) {
     return (
-      <div className="min-h-[80vh] flex flex-col items-center justify-center gap-4 text-gray-500">
-        <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-        <p className="font-medium animate-pulse">Memuat data...</p>
+      <div className="min-h-[70vh] flex flex-col items-center justify-center gap-6 text-slate-400">
+        <div className="w-10 h-10 border-[3px] border-slate-200 border-t-accent rounded-full animate-spin"></div>
+        <p className="font-bold tracking-widest uppercase text-xs">Memuat Dashboard...</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="max-w-7xl mx-auto space-y-10">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-200">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-500 mt-1">Selamat datang di Panel Admin Presensi Digital</p>
+          <h1 className="text-4xl font-extrabold text-primary tracking-tight">Overview</h1>
+          <p className="text-slate-500 font-medium mt-2">Pantau aktivitas presensi dan data organisasi hari ini.</p>
         </div>
-        <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 text-primary-dark font-medium flex items-center gap-2">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        <div className="bg-white px-5 py-3 rounded-2xl shadow-sm border border-slate-200 text-primary font-bold flex items-center gap-3">
+          <svg className="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
-          {new Date().toLocaleDateString('id-ID', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          })}
+          <span className="tracking-wide text-sm">
+            {new Date().toLocaleDateString('id-ID', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </span>
         </div>
       </header>
 
       {/* Stats Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="card p-6 flex flex-col justify-between group cursor-default">
+          <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+              <circle cx="9" cy="7" r="4" strokeWidth={2.5} />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
             </svg>
           </div>
-          <div className="text-3xl font-bold text-gray-900">{stats.totalSiswa}</div>
-          <div className="text-sm text-gray-500 mt-1">Total Siswa</div>
+          <div>
+            <div className="text-4xl font-extrabold text-primary tracking-tight">{stats.totalSiswa}</div>
+            <div className="text-xs font-bold text-slate-400 mt-2 uppercase tracking-wider">Total Anggota</div>
+          </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+        <div className="card p-6 flex flex-col justify-between group cursor-default">
+          <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <span className="text-xl font-extrabold text-primary">O</span>
           </div>
-          <div className="text-3xl font-bold text-gray-900">{stats.totalOsis}</div>
-          <div className="text-sm text-gray-500 mt-1">Anggota OSIS</div>
+          <div>
+            <div className="text-4xl font-extrabold text-primary tracking-tight">{stats.totalOsis}</div>
+            <div className="text-xs font-bold text-slate-400 mt-2 uppercase tracking-wider">Anggota OSIS</div>
+          </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+        <div className="card p-6 flex flex-col justify-between group cursor-default">
+          <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <span className="text-xl font-extrabold text-primary">M</span>
           </div>
-          <div className="text-3xl font-bold text-gray-900">{stats.totalMpk}</div>
-          <div className="text-sm text-gray-500 mt-1">Anggota MPK</div>
+          <div>
+            <div className="text-4xl font-extrabold text-primary tracking-tight">{stats.totalMpk}</div>
+            <div className="text-xs font-bold text-slate-400 mt-2 uppercase tracking-wider">Anggota MPK</div>
+          </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+        <div className="card p-6 flex flex-col justify-between group cursor-default border-t-4 border-t-accent">
+          <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-md">
             <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
             </svg>
           </div>
-          <div className="text-3xl font-bold text-gray-900">{stats.hadirHariIni + stats.izinHariIni + stats.sakitHariIni}</div>
-          <div className="text-sm text-gray-500 mt-1">Presensi Hari Ini</div>
+          <div>
+            <div className="text-4xl font-extrabold text-accent tracking-tight">{stats.hadirHariIni + stats.izinHariIni + stats.sakitHariIni}</div>
+            <div className="text-xs font-bold text-accent mt-2 uppercase tracking-wider">Presensi Hari Ini</div>
+          </div>
         </div>
       </section>
 
-      {/* Attendance Summary */}
-      <section>
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Ringkasan Hari Ini</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-green-500 flex items-center gap-4">
-            <div className="text-2xl">✓</div>
-            <div>
-              <div className="text-2xl font-bold text-gray-900">{stats.hadirHariIni}</div>
-              <div className="text-sm text-gray-500">Hadir</div>
-            </div>
+      {/* Attendance Summary Panel */}
+      <section className="bg-white rounded-3xl p-8 border border-slate-200">
+        <h2 className="text-xl font-extrabold text-primary mb-6 flex items-center gap-3 tracking-tight">
+          <span className="w-2 h-6 bg-accent rounded-full inline-block"></span>
+          Rekapitulasi Kehadiran
+        </h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="flex flex-col items-center justify-center p-6 bg-emerald-50 rounded-2xl border border-emerald-100/50">
+            <span className="text-4xl font-extrabold text-emerald-600 tracking-tight">{stats.hadirHariIni}</span>
+            <span className="text-xs font-bold text-emerald-600/70 uppercase tracking-widest mt-2">Hadir</span>
           </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-yellow-500 flex items-center gap-4">
-            <div className="text-2xl">📄</div>
-            <div>
-              <div className="text-2xl font-bold text-gray-900">{stats.izinHariIni}</div>
-              <div className="text-sm text-gray-500">Izin</div>
-            </div>
+          <div className="flex flex-col items-center justify-center p-6 bg-amber-50 rounded-2xl border border-amber-100/50">
+            <span className="text-4xl font-extrabold text-amber-600 tracking-tight">{stats.izinHariIni}</span>
+            <span className="text-xs font-bold text-amber-600/70 uppercase tracking-widest mt-2">Izin</span>
           </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-red-500 flex items-center gap-4">
-            <div className="text-2xl">🏥</div>
-            <div>
-              <div className="text-2xl font-bold text-gray-900">{stats.sakitHariIni}</div>
-              <div className="text-sm text-gray-500">Sakit</div>
-            </div>
+          <div className="flex flex-col items-center justify-center p-6 bg-rose-50 rounded-2xl border border-rose-100/50">
+            <span className="text-4xl font-extrabold text-rose-600 tracking-tight">{stats.sakitHariIni}</span>
+            <span className="text-xs font-bold text-rose-600/70 uppercase tracking-widest mt-2">Sakit</span>
           </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-500 flex items-center gap-4">
-            <div className="text-2xl">🏠</div>
-            <div>
-              <div className="text-2xl font-bold text-gray-900">{stats.pulangHariIni}</div>
-              <div className="text-sm text-gray-500">Pulang</div>
-            </div>
+          <div className="flex flex-col items-center justify-center p-6 bg-slate-50 rounded-2xl border border-slate-200">
+            <span className="text-4xl font-extrabold text-primary tracking-tight">{stats.pulangHariIni}</span>
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-2">Pulang</span>
           </div>
         </div>
       </section>
 
       {/* Recent Activity Table */}
-      <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-6 border-b border-gray-100">
-          <h2 className="text-xl font-bold text-gray-900">Aktivitas Terkini</h2>
+      <section className="bg-white rounded-3xl border border-slate-200 overflow-hidden">
+        <div className="p-8 border-b border-slate-100 flex items-center justify-between">
+          <h2 className="text-xl font-extrabold text-primary flex items-center gap-3 tracking-tight">
+            <span className="w-2 h-6 bg-primary rounded-full inline-block"></span>
+            Log Aktivitas Terkini
+          </h2>
         </div>
 
         {recentPresensi.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-gray-50 text-gray-500 text-sm uppercase tracking-wider">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-slate-50 border-b border-slate-200">
                 <tr>
-                  <th className="px-6 py-4 font-semibold">Nama</th>
-                  <th className="px-6 py-4 font-semibold">Kelas</th>
-                  <th className="px-6 py-4 font-semibold">Organisasi</th>
-                  <th className="px-6 py-4 font-semibold">Status</th>
-                  <th className="px-6 py-4 font-semibold">Waktu</th>
+                  <th className="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Siswa</th>
+                  <th className="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Kelas</th>
+                  <th className="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Organisasi</th>
+                  <th className="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Status</th>
+                  <th className="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Waktu Terdata</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-slate-100">
                 {recentPresensi.map((p, idx) => (
-                  <tr key={p.id || idx} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 font-medium text-gray-900">{p.namaSiswa}</td>
-                    <td className="px-6 py-4 text-gray-500">{p.kelasSiswa}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${p.organisasiSiswa === 'OSIS' ? 'bg-indigo-100 text-indigo-700' : 'bg-sky-100 text-sky-700'}`}>
-                        {p.organisasiSiswa}
-                      </span>
+                  <tr key={p.id || idx} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-8 py-5 font-bold text-primary">{p.namaSiswa}</td>
+                    <td className="px-8 py-5 text-slate-500 font-medium">{p.kelasSiswa}</td>
+                    <td className="px-8 py-5">
+                      <span className="badge badge-primary">{p.organisasiSiswa}</span>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold uppercase ${getStatusBadge(p.status)}`}>
+                    <td className="px-8 py-5">
+                      <span className={`badge ${getStatusBadge(p.status)}`}>
                         {p.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-gray-500 font-mono text-sm">{p.waktu}</td>
+                    <td className="px-8 py-5 text-slate-500 font-mono text-sm font-medium">{p.waktu}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         ) : (
-          <div className="p-12 text-center text-gray-400">
+          <div className="p-16 text-center text-slate-400 bg-slate-50/50">
             <svg className="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            <p className="text-lg font-medium">Belum ada presensi hari ini</p>
+            <p className="text-sm font-bold uppercase tracking-widest">Belum ada data terekam hari ini</p>
           </div>
         )}
       </section>

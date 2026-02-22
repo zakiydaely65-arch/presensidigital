@@ -22,31 +22,31 @@ export default function AdminLayout({ children }) {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-surface-muted flex">
       {/* Mobile Backdrop */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 md:hidden"
+          className="fixed inset-0 bg-primary/40 backdrop-blur-sm z-40 md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <aside className={`w-72 bg-slate-900 text-white flex flex-col fixed h-full inset-y-0 left-0 z-50 transition-transform duration-300 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
-        <div className="p-6 border-b border-white/10 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-800 flex items-center justify-center shadow-lg">
-              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+      <aside className={`w-72 bg-white border-r border-slate-200 flex flex-col fixed h-full inset-y-0 left-0 z-50 transition-transform duration-300 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+        <div className="h-20 flex items-center px-8 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-sm">
+              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
             </div>
             <div>
-              <h1 className="font-bold text-lg leading-tight">Presensi</h1>
-              <p className="text-xs text-gray-400">Admin Panel</p>
+              <h1 className="font-extrabold text-lg text-primary tracking-tight">Presensi.</h1>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Admin Workspace</p>
             </div>
           </div>
           <button
-            className="md:hidden p-2 text-gray-400 hover:text-white"
+            className="md:hidden ml-auto p-2 text-slate-400 hover:text-primary transition-colors"
             onClick={() => setSidebarOpen(false)}
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -55,7 +55,7 @@ export default function AdminLayout({ children }) {
           </button>
         </div>
 
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+        <nav className="flex-1 px-4 py-8 space-y-1.5 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -63,50 +63,42 @@ export default function AdminLayout({ children }) {
                 key={item.href}
                 href={item.href}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
-                  ? 'bg-gradient-to-r from-indigo-600 to-indigo-800 text-white shadow-lg'
-                  : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 group text-sm font-semibold tracking-wide ${isActive
+                  ? 'bg-primary text-white shadow-md'
+                  : 'text-slate-500 hover:bg-slate-50 hover:text-primary'
                   }`}
               >
-                <svg className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-500 group-hover:text-white transition-colors'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className={`w-5 h-5 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-primary transition-colors'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
                 </svg>
-                <span className="font-medium">{item.label}</span>
+                {item.label}
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-white/10">
+        <div className="p-4 border-t border-slate-100">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all duration-200"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 transition-all duration-200"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
-            <span className="font-medium">Keluar</span>
+            KELUAR SESI
           </button>
-          <div className="mt-4 text-center">
-            <p className="text-xs text-gray-600">v1.0.0 &copy; 2024</p>
-          </div>
         </div>
       </aside>
 
       {/* Main Content Area */}
       <div className="flex-1 md:ml-72 flex flex-col min-h-screen">
         {/* Mobile Header */}
-        <header className="md:hidden bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between sticky top-0 z-30">
+        <header className="md:hidden bg-white border-b border-slate-200 h-16 px-4 flex items-center justify-between sticky top-0 z-30 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
-              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </div>
-            <span className="font-bold text-gray-900">Admin Panel</span>
+            <span className="font-extrabold text-primary tracking-tight">Presensi.</span>
           </div>
           <button
-            className="p-2 -mr-2 text-gray-500 hover:text-indigo-600 transition-colors"
+            className="p-2 -mr-2 text-slate-500 hover:text-primary transition-colors"
             onClick={() => setSidebarOpen(true)}
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -115,7 +107,7 @@ export default function AdminLayout({ children }) {
           </button>
         </header>
 
-        <main className="p-4 md:p-8">
+        <main className="p-6 md:p-10 flex-1 overflow-x-hidden">
           {children}
         </main>
       </div>

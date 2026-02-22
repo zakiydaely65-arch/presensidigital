@@ -67,8 +67,6 @@ export default function SiswaPage() {
 
             fetchSiswa();
 
-            // Only close modal if we are in edit mode
-            // If we are in add mode (creating new student), we want to keep it open to show credentials
             if (editMode) {
                 closeModal();
             }
@@ -120,126 +118,132 @@ export default function SiswaPage() {
 
     if (loading) {
         return (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-                <div className="spinner spinner-lg"></div>
+            <div className="min-h-[70vh] flex flex-col items-center justify-center gap-6 text-slate-400">
+                <div className="w-10 h-10 border-[3px] border-slate-200 border-t-primary rounded-full animate-spin"></div>
+                <p className="font-bold uppercase tracking-widest text-xs">Menyiapkan Direktori Data...</p>
             </div>
         );
     }
 
     return (
-        <div className="p-6 max-w-7xl mx-auto space-y-6">
-            <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto space-y-8 animate-fadeIn">
+            <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-200">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Data Siswa</h1>
-                    <p className="text-gray-500 text-sm mt-1">Kelola data anggota OSIS dan MPK</p>
+                    <h1 className="text-4xl font-extrabold text-primary tracking-tight">Direktori Siswa</h1>
+                    <p className="text-slate-500 font-medium mt-2">Manajemen akun dan data anggota OSIS / MPK.</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-3">
                     <a
                         href={`/api/export?type=siswa${filter ? '&organisasi=' + filter : ''}`}
                         target="_blank"
-                        className="btn btn-secondary"
+                        className="btn btn-secondary font-bold"
                     >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        Export Data
+                        UNDUH DATA (CSV)
                     </a>
-                    <button className="btn btn-primary" onClick={openAddModal}>
-                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <button className="btn btn-primary font-bold" onClick={openAddModal}>
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                             <line x1="12" y1="5" x2="12" y2="19" />
                             <line x1="5" y1="12" x2="19" y2="12" />
                         </svg>
-                        Tambah Siswa
+                        TAMBAH ANGGOTA
                     </button>
                 </div>
             </header>
 
             {success && (
-                <div className="alert alert-success animate-fadeIn">
-                    <span>{success}</span>
-                    <button onClick={() => setSuccess('')} className="ml-auto text-current opacity-70 hover:opacity-100">×</button>
+                <div className="alert alert-success mt-4">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                    <span className="font-bold">{success}</span>
+                    <button onClick={() => setSuccess('')} className="ml-auto opacity-50 hover:opacity-100">×</button>
                 </div>
             )}
 
             {error && (
-                <div className="alert alert-error animate-fadeIn">
-                    <span>{error}</span>
-                    <button onClick={() => setError('')} className="ml-auto text-current opacity-70 hover:opacity-100">×</button>
+                <div className="alert alert-error mt-4">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
+                    <span className="font-bold">{error}</span>
+                    <button onClick={() => setError('')} className="ml-auto opacity-50 hover:opacity-100">×</button>
                 </div>
             )}
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                    <label className="text-sm font-medium text-gray-600">Filter Organisasi:</label>
+            <div className="card p-6 flex flex-col md:flex-row md:items-center justify-between gap-5 border-t-4 border-t-primary">
+                <div className="flex items-center gap-4">
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest shrink-0">Filter Organisasi</label>
                     <select
-                        className="select w-48"
+                        className="select w-48 py-2.5 text-sm"
                         value={filter}
                         onChange={(e) => setFilter(e.target.value)}
                     >
-                        <option value="">Semua</option>
-                        <option value="OSIS">OSIS</option>
-                        <option value="MPK">MPK</option>
+                        <option value="">KESELURUHAN</option>
+                        <option value="OSIS">OSIS SAJA</option>
+                        <option value="MPK">MPK SAJA</option>
                     </select>
                 </div>
-                <div className="text-sm text-gray-500">
-                    Total: <strong className="text-gray-900">{siswa.length}</strong> siswa
+                <div className="text-sm font-bold text-slate-400 uppercase tracking-widest">
+                    Total Registrasi: <span className="text-primary text-base ml-2">{siswa.length}</span>
                 </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="card overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider font-semibold border-b border-gray-100">
+                    <table className="w-full text-left border-collapse">
+                        <thead className="bg-slate-50 border-b border-slate-200">
                             <tr>
-                                <th className="px-6 py-4">No</th>
-                                <th className="px-6 py-4">Kode</th>
-                                <th className="px-6 py-4">Nama</th>
-                                <th className="px-6 py-4">Kelas</th>
-                                <th className="px-6 py-4">Organisasi</th>
-                                <th className="px-6 py-4 text-right">Aksi</th>
+                                <th className="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest w-16 text-center">No</th>
+                                <th className="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Akses ID</th>
+                                <th className="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Identitas Siswa</th>
+                                <th className="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Kelas</th>
+                                <th className="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Afiliasi</th>
+                                <th className="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-right">Otorisasi</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100">
+                        <tbody className="divide-y divide-slate-100">
                             {siswa.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" className="px-6 py-12 text-center text-gray-400">
-                                        Belum ada data siswa
+                                    <td colSpan="6" className="px-8 py-16 text-center text-slate-400">
+                                        <div className="flex justify-center mb-3">
+                                            <svg className="w-10 h-10 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                                        </div>
+                                        <p className="font-bold uppercase tracking-widest text-xs">Kosong / Belum ada Anggota</p>
                                     </td>
                                 </tr>
                             ) : (
                                 siswa.map((s, idx) => (
-                                    <tr key={s.id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-6 py-4 text-gray-500">{idx + 1}</td>
-                                        <td className="px-6 py-4">
-                                            <code className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-mono">{s.kode}</code>
+                                    <tr key={s.id} className="hover:bg-slate-50/50 transition-colors">
+                                        <td className="px-8 py-5 font-bold text-slate-400 text-center text-xs">{idx + 1}</td>
+                                        <td className="px-8 py-5">
+                                            <code className="bg-slate-100/80 text-primary px-3 py-1.5 rounded-lg text-xs font-bold tracking-widest border border-slate-200">{s.kode}</code>
                                         </td>
-                                        <td className="px-6 py-4 font-medium text-gray-900">{s.nama}</td>
-                                        <td className="px-6 py-4 text-gray-600">{s.kelas}</td>
-                                        <td className="px-6 py-4">
-                                            <span className={`badge ${s.organisasi === 'OSIS' ? 'badge-primary' : 'badge-info'}`}>
+                                        <td className="px-8 py-5 font-bold text-primary">{s.nama}</td>
+                                        <td className="px-8 py-5 text-slate-500 font-medium">{s.kelas}</td>
+                                        <td className="px-8 py-5">
+                                            <span className={`badge ${s.organisasi === 'OSIS' ? 'badge-primary' : 'badge-accent'}`}>
                                                 {s.organisasi}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center justify-end gap-2">
+                                        <td className="px-8 py-5">
+                                            <div className="flex items-center justify-end gap-2 text-slate-400">
                                                 <button
-                                                    className="btn btn-sm btn-secondary p-2"
+                                                    className="p-2 hover:bg-slate-100 hover:text-primary rounded-lg transition-colors border border-transparent hover:border-slate-200"
                                                     onClick={() => openEditModal(s)}
                                                     title="Edit"
                                                 >
-                                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-                                                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" strokeLinecap="round" strokeLinejoin="round" />
+                                                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" strokeLinecap="round" strokeLinejoin="round" />
                                                     </svg>
                                                 </button>
                                                 <button
-                                                    className="btn btn-sm btn-danger p-2"
+                                                    className="p-2 hover:bg-rose-50 hover:text-rose-600 rounded-lg transition-colors border border-transparent hover:border-rose-100"
                                                     onClick={() => handleDelete(s.id)}
                                                     title="Hapus"
                                                 >
-                                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                        <polyline points="3 6 5 6 21 6" />
-                                                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                                        <polyline points="3 6 5 6 21 6" strokeLinecap="round" strokeLinejoin="round" />
+                                                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" strokeLinecap="round" strokeLinejoin="round" />
                                                     </svg>
                                                 </button>
                                             </div>
@@ -253,123 +257,67 @@ export default function SiswaPage() {
             </div>
 
             {showModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-all" onClick={closeModal}>
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all" onClick={(e) => e.stopPropagation()}>
-                        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                            <h2 className="text-lg font-bold text-gray-800">
-                                {showCredentials ? 'Kredensial Siswa' : editMode ? 'Edit Siswa' : 'Tambah Siswa Baru'}
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-primary/40 backdrop-blur-sm transition-all" onClick={closeModal}>
+                    <div className="bg-white rounded-3xl shadow-premium w-full max-w-md overflow-hidden transform transition-all border border-slate-100" onClick={(e) => e.stopPropagation()}>
+                        <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center">
+                            <h2 className="text-xl font-extrabold text-primary tracking-tight">
+                                {showCredentials ? 'Akses Terotorisasi' : editMode ? 'Modifikasi Data' : 'Registrasi Anggota Baru'}
                             </h2>
-                            <button className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-200" onClick={closeModal}>
+                            <button className="text-slate-400 hover:text-primary transition-colors p-2 rounded-xl hover:bg-slate-50" onClick={closeModal}>
                                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
                         </div>
 
                         {showCredentials ? (
-                            <div className="p-6 space-y-6">
-                                <div className="bg-gradient-to-br from-indigo-50 to-green-50 border border-indigo-100 rounded-xl p-6 text-center shadow-inner">
-                                    <p className="text-gray-600 text-sm mb-4">Simpan kredensial berikut. Sandi hanya ditampilkan sekali!</p>
-                                    <div className="space-y-4">
+                            <div className="p-8 space-y-8">
+                                <div className="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-6 text-center shadow-inner">
+                                    <p className="text-emerald-700 text-xs font-bold uppercase tracking-widest mb-6">Amankan Informasi Berikut</p>
+                                    <div className="space-y-5">
                                         <div>
-                                            <label className="block text-xs uppercase tracking-wide text-gray-500 mb-1">Kode</label>
-                                            <div className="text-2xl font-bold font-mono text-indigo-900 bg-white p-3 rounded-lg border border-indigo-100 shadow-sm inline-block min-w-[140px] tracking-wider">
+                                            <label className="block text-[10px] uppercase font-black tracking-widest text-slate-400 mb-2">ID KODE</label>
+                                            <div className="text-2xl font-extrabold font-mono text-primary bg-white py-3 px-5 rounded-xl border border-slate-200 shadow-sm inline-block min-w-[150px] tracking-[0.2em]">
                                                 {showCredentials.kode}
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="block text-xs uppercase tracking-wide text-gray-500 mb-1">Sandi</label>
-                                            <div className="text-2xl font-bold font-mono text-indigo-900 bg-white p-3 rounded-lg border border-indigo-100 shadow-sm inline-block min-w-[140px] tracking-wider">
+                                            <label className="block text-[10px] uppercase font-black tracking-widest text-slate-400 mb-2">Sandi Acak</label>
+                                            <div className="text-xl font-extrabold font-mono text-primary bg-white py-3 px-5 rounded-xl border border-slate-200 shadow-sm inline-block min-w-[150px] tracking-[0.2em] select-all">
                                                 {showCredentials.sandi}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="mt-6 flex flex-col gap-3">
-                                    <button
-                                        onClick={() => {
-                                            const printWindow = window.open('', '', 'width=400,height=600');
-                                            printWindow.document.write(`
-                                                <html>
-                                                    <head>
-                                                        <title>Kredensial - ${formData.nama}</title>
-                                                        <style>
-                                                            body { font-family: sans-serif; padding: 40px; text-align: center; }
-                                                            .card { border: 2px dashed #4f46e5; padding: 20px; border-radius: 10px; }
-                                                            h2 { color: #4f46e5; margin: 0 0 5px 0; }
-                                                            p { margin: 5px 0; color: #666; font-size: 14px; }
-                                                            .cred-box { background: #f3f4f6; padding: 10px; margin: 15px 0; border-radius: 8px; }
-                                                            .label { font-size: 10px; text-transform: uppercase; color: #666; letter-spacing: 1px; }
-                                                            .value { font-family: monospace; font-size: 24px; font-weight: bold; color: #333; margin-top: 5px; }
-                                                            .footer { margin-top: 20px; font-size: 10px; color: #999; }
-                                                        </style>
-                                                    </head>
-                                                    <body>
-                                                        <div class="card">
-                                                            <h2>PRESENSI DIGITAL</h2>
-                                                            <p>OSIS & MPK</p>
-                                                            <hr style="margin: 15px 0; border: none; border-top: 1px solid #eee;">
-                                                            <p><strong>${formData.nama}</strong></p>
-                                                            <p>${formData.kelas}</p>
-                                                            
-                                                            <div class="cred-box">
-                                                                <div class="label">KODE AKSES</div>
-                                                                <div class="value">${showCredentials?.kode || '-'}</div>
-                                                            </div>
-                                                            
-                                                            <div class="cred-box">
-                                                                <div class="label">KATA SANDI</div>
-                                                                <div class="value">${showCredentials?.sandi || '-'}</div>
-                                                            </div>
-                                                            
-                                                            <div class="footer">
-                                                                Simpan kartu ini untuk login.<br>
-                                                                Jangan berikan kepada orang lain.
-                                                            </div>
-                                                        </div>
-                                                        <script>
-                                                            window.onload = function() { window.print(); }
-                                                        </script>
-                                                    </body>
-                                                </html>
-                                            `);
-                                            printWindow.document.close();
-                                        }}
-                                        className="btn bg-indigo-600 text-white hover:bg-indigo-700 shadow-md"
-                                    >
-                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                                        </svg>
-                                        Cetak Kredensial
-                                    </button>
-                                    <button className="btn btn-secondary w-full" onClick={closeModal}>
-                                        Tutup
+                                <div className="mt-8 flex gap-3">
+                                    <button className="btn btn-secondary flex-1 py-3" onClick={closeModal}>
+                                        TUTUP
                                     </button>
                                 </div>
                             </div>
                         ) : (
                             <form onSubmit={handleSubmit}>
-                                <div className="p-6 space-y-4">
-                                    <div className="space-y-1.5">
-                                        <label className="text-sm font-medium text-gray-700">Nama Lengkap</label>
+                                <div className="p-8 space-y-6">
+                                    <div className="space-y-2">
+                                        <label className="form-label">Identitas Lengkap</label>
                                         <input
                                             type="text"
-                                            className="input w-full"
+                                            className="input"
                                             value={formData.nama}
                                             onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
                                             required
-                                            placeholder="Masukkan nama siswa"
+                                            placeholder="Sesuai daftar absensi resmi"
                                         />
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-sm font-medium text-gray-700">Kelas</label>
+                                    <div className="space-y-2">
+                                        <label className="form-label">Tingkat Kelas</label>
                                         <select
-                                            className="select w-full"
+                                            className="select"
                                             value={formData.kelas}
                                             onChange={(e) => setFormData({ ...formData, kelas: e.target.value })}
                                             required
                                         >
-                                            <option value="">Pilih Kelas</option>
+                                            <option value="">Pilih Jenjang</option>
                                             {['X', 'XI', 'XII'].map(level => (
                                                 <optgroup key={level} label={`Kelas ${level}`}>
                                                     {[...Array(10)].map((_, i) => (
@@ -381,25 +329,24 @@ export default function SiswaPage() {
                                             ))}
                                         </select>
                                     </div>
-                                    {/* Jabatan input removed as per request, defaults to 'Anggota' in backend */}
-                                    <div className="space-y-1.5">
-                                        <label className="text-sm font-medium text-gray-700">Organisasi</label>
+                                    <div className="space-y-2">
+                                        <label className="form-label">Afiliasi Struktur</label>
                                         <select
-                                            className="select w-full"
+                                            className="select"
                                             value={formData.organisasi}
                                             onChange={(e) => setFormData({ ...formData, organisasi: e.target.value })}
                                         >
-                                            <option value="OSIS">OSIS</option>
-                                            <option value="MPK">MPK</option>
+                                            <option value="OSIS">Pengurus OSIS</option>
+                                            <option value="MPK">Perwakilan MPK</option>
                                         </select>
                                     </div>
                                 </div>
-                                <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50 rounded-b-2xl">
-                                    <button type="button" className="btn btn-secondary" onClick={closeModal}>
-                                        Batal
+                                <div className="px-8 py-5 border-t border-slate-100 flex justify-end gap-3 bg-slate-50">
+                                    <button type="button" className="btn btn-secondary text-xs" onClick={closeModal}>
+                                        BTL
                                     </button>
-                                    <button type="submit" className="btn btn-primary shadow-lg shadow-primary/20">
-                                        {editMode ? 'Simpan Perubahan' : 'Tambah Siswa'}
+                                    <button type="submit" className="btn btn-primary text-xs w-full sm:w-auto">
+                                        {editMode ? 'SIMPAN PERUBAHAN' : 'GENERATE AKUN'}
                                     </button>
                                 </div>
                             </form>
