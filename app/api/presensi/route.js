@@ -57,7 +57,8 @@ export async function GET(request) {
             siswaId: p.siswa_id, // Map back to camelCase for UI if needed
             namaSiswa: p.siswa?.nama || 'Unknown',
             kelasSiswa: p.siswa?.kelas || 'Unknown',
-            organisasiSiswa: p.siswa?.organisasi || 'Unknown'
+            organisasiSiswa: p.siswa?.organisasi || 'Unknown',
+            isAtSchool: p.is_at_school // Map snake_case DB column to camelCase for frontend
         }));
 
         return NextResponse.json({ success: true, data: enrichedPresensi });
