@@ -7,6 +7,7 @@ import { SCHOOL_COORDS, SCHOOL_RADIUS } from '@/lib/constants';
 export default function SiswaPage() {
   const [user, setUser] = useState(null);
   const [location, setLocation] = useState(null);
+  const [accuracy, setAccuracy] = useState(null);
   const [locationError, setLocationError] = useState('');
   const [isAtSchool, setIsAtSchool] = useState(null);
   const [distance, setDistance] = useState(null);
@@ -60,8 +61,10 @@ export default function SiswaPage() {
       (position) => {
         const userLat = position.coords.latitude;
         const userLng = position.coords.longitude;
+        const gpsAccuracy = Math.round(position.coords.accuracy);
 
         setLocation({ latitude: userLat, longitude: userLng });
+        setAccuracy(gpsAccuracy);
 
         // Calculate distance using Haversine formula
         const dist = calculateDistance(userLat, userLng, SCHOOL_COORDS.latitude, SCHOOL_COORDS.longitude);
@@ -85,8 +88,8 @@ export default function SiswaPage() {
       },
       {
         enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 30000
+        timeout: 15000,
+        maximumAge: 0
       }
     );
   };
@@ -195,6 +198,7 @@ export default function SiswaPage() {
             <div className="space-y-1 pl-2 mt-2">
               <p>User Lat: {location?.latitude || '-'}</p>
               <p>User Lng: {location?.longitude || '-'}</p>
+              <p>GPS Accuracy: {accuracy !== null ? `±${accuracy} meters` : '-'}</p>
               <div className="h-px bg-gray-300 my-1"></div>
               <p>School Lat: {SCHOOL_COORDS.latitude}</p>
               <p>School Lng: {SCHOOL_COORDS.longitude}</p>
@@ -205,6 +209,14 @@ export default function SiswaPage() {
             </div>
           </details>
         </div>
+
+        {/* Low accuracy warning */}
+        {accuracy !== null && accuracy > 100 && (
+          <div className="mb-4 p-3 bg-amber-50 rounded-lg text-sm text-amber-700 border border-amber-200 flex items-center gap-2">
+            <span>⚠️</span>
+            <span>Akurasi GPS rendah (±{accuracy}m). Hasil lokasi mungkin tidak akurat. Coba buka di area terbuka atau gunakan HP dengan GPS aktif.</span>
+          </div>
+        )}
 
         {locationError ? (
           <div className="text-center py-6 bg-red-50 rounded-xl border border-red-100">
