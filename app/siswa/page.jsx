@@ -38,7 +38,7 @@ export default function SiswaPage() {
 
   const fetchTodayPresensi = async () => {
     try {
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
       const res = await fetch(`/api/presensi?startDate=${today}&endDate=${today}`);
       const data = await res.json();
       if (data.success) {

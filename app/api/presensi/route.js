@@ -124,13 +124,16 @@ export async function POST(request) {
         }
 
         // Check if already submitted attendance today with same status type
-        const todayStr = new Date().toISOString().split('T')[0];
+        // Use WIB timezone (Asia/Jakarta, UTC+7)
+        const now = new Date();
+        const wibDate = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }); // YYYY-MM-DD format
+        const wibTime = now.toLocaleTimeString('en-GB', { timeZone: 'Asia/Jakarta', hour12: false }); // HH:MM:SS format
 
         const { data: existing, error: checkError } = await supabase
             .from('presensi')
             .select('id')
             .eq('siswa_id', user.id)
-            .eq('tanggal', todayStr)
+            .eq('tanggal', wibDate)
             .eq('status', status)
             .maybeSingle();
 
@@ -150,8 +153,9 @@ export async function POST(request) {
                 status,
                 latitude,
                 longitude,
-                is_at_school: atSchool
-                // tanggal and waktu default to current_date and current_time in Postgres
+                is_at_school: atSchool,
+                tanggal: wibDate,
+                waktu: wibTime
             }])
             .select()
             .single();

@@ -6,16 +6,22 @@ export default function PresensiPage() {
     const [presensi, setPresensi] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filterType, setFilterType] = useState('harian');
-    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+    const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }));
     const [selectedWeek, setSelectedWeek] = useState('');
-    const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7));
+    const [selectedMonth, setSelectedMonth] = useState(() => {
+        const now = new Date();
+        const yyyy = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric' }).split('-')[0];
+        const mm = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta', month: '2-digit' }).split('-')[1];
+        return `${yyyy}-${mm}`;
+    });
     const [organisasiFilter, setOrganisasiFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [stats, setStats] = useState({ hadir: 0, izin: 0, sakit: 0, pulang: 0 });
 
     useEffect(() => {
         // Set initial week
-        const today = new Date();
+        const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
+        const today = new Date(todayStr + 'T00:00:00');
         const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 1));
         setSelectedWeek(startOfWeek.toISOString().split('T')[0]);
     }, []);
