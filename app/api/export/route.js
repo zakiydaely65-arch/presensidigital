@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { getUserFromRequest } from '@/lib/auth';
 
 // GET - Export data to Excel
+export const dynamic = 'force-dynamic';
 export async function GET(request) {
     try {
         const user = await getUserFromRequest(request);
