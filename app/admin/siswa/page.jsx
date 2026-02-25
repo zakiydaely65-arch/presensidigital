@@ -126,29 +126,31 @@ export default function SiswaPage() {
     }
 
     return (
-        <div className="max-w-7xl mx-auto space-y-8 animate-fadeIn">
-            <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-200">
+        <div className="max-w-7xl mx-auto space-y-6 md:space-y-8 animate-fadeIn">
+            <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 pb-4 md:pb-6 border-b border-slate-200">
                 <div>
-                    <h1 className="text-4xl font-extrabold text-primary tracking-tight">Direktori Siswa</h1>
-                    <p className="text-slate-500 font-medium mt-2">Manajemen akun dan data anggota OSIS / MPK.</p>
+                    <h1 className="text-2xl md:text-4xl font-extrabold text-primary tracking-tight">Direktori Siswa</h1>
+                    <p className="text-slate-500 font-medium mt-1 md:mt-2 text-sm md:text-base">Manajemen akun dan data anggota OSIS / MPK.</p>
                 </div>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2 md:gap-3">
                     <a
                         href={`/api/export?type=siswa${filter ? '&organisasi=' + filter : ''}`}
                         target="_blank"
-                        className="btn btn-secondary font-bold"
+                        className="btn btn-secondary font-bold text-xs md:text-sm"
                     >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        UNDUH DATA (CSV)
+                        <span className="hidden sm:inline">UNDUH DATA (CSV)</span>
+                        <span className="sm:hidden">UNDUH</span>
                     </a>
-                    <button className="btn btn-primary font-bold" onClick={openAddModal}>
+                    <button className="btn btn-primary font-bold text-xs md:text-sm" onClick={openAddModal}>
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                             <line x1="12" y1="5" x2="12" y2="19" />
                             <line x1="5" y1="12" x2="19" y2="12" />
                         </svg>
-                        TAMBAH ANGGOTA
+                        <span className="hidden sm:inline">TAMBAH ANGGOTA</span>
+                        <span className="sm:hidden">TAMBAH</span>
                     </button>
                 </div>
             </header>
@@ -156,7 +158,7 @@ export default function SiswaPage() {
             {success && (
                 <div className="alert alert-success mt-4">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
-                    <span className="font-bold">{success}</span>
+                    <span className="font-bold text-sm">{success}</span>
                     <button onClick={() => setSuccess('')} className="ml-auto opacity-50 hover:opacity-100">×</button>
                 </div>
             )}
@@ -164,16 +166,16 @@ export default function SiswaPage() {
             {error && (
                 <div className="alert alert-error mt-4">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
-                    <span className="font-bold">{error}</span>
+                    <span className="font-bold text-sm">{error}</span>
                     <button onClick={() => setError('')} className="ml-auto opacity-50 hover:opacity-100">×</button>
                 </div>
             )}
 
-            <div className="card p-6 flex flex-col md:flex-row md:items-center justify-between gap-5 border-t-4 border-t-primary">
-                <div className="flex items-center gap-4">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest shrink-0">Filter Organisasi</label>
+            <div className="card p-4 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-5 border-t-4 border-t-primary">
+                <div className="flex items-center gap-3 md:gap-4">
+                    <label className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest shrink-0">Filter</label>
                     <select
-                        className="select w-48 py-2.5 text-sm"
+                        className="select w-full sm:w-48 py-2.5 text-sm"
                         value={filter}
                         onChange={(e) => setFilter(e.target.value)}
                     >
@@ -182,13 +184,14 @@ export default function SiswaPage() {
                         <option value="MPK">MPK SAJA</option>
                     </select>
                 </div>
-                <div className="text-sm font-bold text-slate-400 uppercase tracking-widest">
-                    Total Registrasi: <span className="text-primary text-base ml-2">{siswa.length}</span>
+                <div className="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-widest">
+                    Total: <span className="text-primary text-sm md:text-base ml-1 md:ml-2">{siswa.length}</span>
                 </div>
             </div>
 
             <div className="card overflow-hidden">
-                <div className="overflow-x-auto">
+                {/* Desktop Table */}
+                <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead className="bg-slate-50 border-b border-slate-200">
                             <tr>
@@ -254,13 +257,69 @@ export default function SiswaPage() {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Mobile Card List */}
+                <div className="md:hidden">
+                    {siswa.length === 0 ? (
+                        <div className="px-4 py-12 text-center text-slate-400">
+                            <div className="flex justify-center mb-3">
+                                <svg className="w-10 h-10 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                            </div>
+                            <p className="font-bold uppercase tracking-widest text-xs">Kosong / Belum ada Anggota</p>
+                        </div>
+                    ) : (
+                        <div className="divide-y divide-slate-100">
+                            {siswa.map((s, idx) => (
+                                <div key={s.id} className="p-4 space-y-3">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                                                <span className="text-xs font-extrabold text-primary">{idx + 1}</span>
+                                            </div>
+                                            <div className="min-w-0">
+                                                <p className="font-bold text-primary text-sm truncate">{s.nama}</p>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className="text-xs text-slate-400">{s.kelas}</span>
+                                                    <span className={`badge text-[9px] px-2 py-0.5 ${s.organisasi === 'OSIS' ? 'badge-primary' : 'badge-accent'}`}>
+                                                        {s.organisasi}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-1 shrink-0">
+                                            <button
+                                                className="p-2 hover:bg-slate-100 hover:text-primary rounded-lg transition-colors text-slate-400"
+                                                onClick={() => openEditModal(s)}
+                                            >
+                                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" strokeLinecap="round" strokeLinejoin="round" />
+                                                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" strokeLinecap="round" strokeLinejoin="round" />
+                                                </svg>
+                                            </button>
+                                            <button
+                                                className="p-2 hover:bg-rose-50 hover:text-rose-600 rounded-lg transition-colors text-slate-400"
+                                                onClick={() => handleDelete(s.id)}
+                                            >
+                                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                                    <polyline points="3 6 5 6 21 6" strokeLinecap="round" strokeLinejoin="round" />
+                                                    <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" strokeLinecap="round" strokeLinejoin="round" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <code className="bg-slate-50 text-primary px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-widest border border-slate-200 inline-block">{s.kode}</code>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
 
             {showModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-primary/40 backdrop-blur-sm transition-all" onClick={closeModal}>
-                    <div className="bg-white rounded-3xl shadow-premium w-full max-w-md overflow-hidden transform transition-all border border-slate-100" onClick={(e) => e.stopPropagation()}>
-                        <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center">
-                            <h2 className="text-xl font-extrabold text-primary tracking-tight">
+                <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-primary/40 backdrop-blur-sm transition-all" onClick={closeModal}>
+                    <div className="bg-white rounded-t-3xl sm:rounded-3xl shadow-premium w-full sm:max-w-md overflow-hidden transform transition-all border border-slate-100 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                        <div className="px-5 sm:px-8 py-5 sm:py-6 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white z-10">
+                            <h2 className="text-lg sm:text-xl font-extrabold text-primary tracking-tight">
                                 {showCredentials ? 'Akses Terotorisasi' : editMode ? 'Modifikasi Data' : 'Registrasi Anggota Baru'}
                             </h2>
                             <button className="text-slate-400 hover:text-primary transition-colors p-2 rounded-xl hover:bg-slate-50" onClick={closeModal}>
@@ -271,25 +330,25 @@ export default function SiswaPage() {
                         </div>
 
                         {showCredentials ? (
-                            <div className="p-8 space-y-8">
-                                <div className="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-6 text-center shadow-inner">
-                                    <p className="text-emerald-700 text-xs font-bold uppercase tracking-widest mb-6">Amankan Informasi Berikut</p>
-                                    <div className="space-y-5">
+                            <div className="p-5 sm:p-8 space-y-6 sm:space-y-8">
+                                <div className="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-5 sm:p-6 text-center shadow-inner">
+                                    <p className="text-emerald-700 text-xs font-bold uppercase tracking-widest mb-5 sm:mb-6">Amankan Informasi Berikut</p>
+                                    <div className="space-y-4 sm:space-y-5">
                                         <div>
                                             <label className="block text-[10px] uppercase font-black tracking-widest text-slate-400 mb-2">ID KODE</label>
-                                            <div className="text-2xl font-extrabold font-mono text-primary bg-white py-3 px-5 rounded-xl border border-slate-200 shadow-sm inline-block min-w-[150px] tracking-[0.2em]">
+                                            <div className="text-xl sm:text-2xl font-extrabold font-mono text-primary bg-white py-3 px-4 sm:px-5 rounded-xl border border-slate-200 shadow-sm inline-block min-w-[120px] sm:min-w-[150px] tracking-[0.2em]">
                                                 {showCredentials.kode}
                                             </div>
                                         </div>
                                         <div>
                                             <label className="block text-[10px] uppercase font-black tracking-widest text-slate-400 mb-2">Sandi Acak</label>
-                                            <div className="text-xl font-extrabold font-mono text-primary bg-white py-3 px-5 rounded-xl border border-slate-200 shadow-sm inline-block min-w-[150px] tracking-[0.2em] select-all">
+                                            <div className="text-lg sm:text-xl font-extrabold font-mono text-primary bg-white py-3 px-4 sm:px-5 rounded-xl border border-slate-200 shadow-sm inline-block min-w-[120px] sm:min-w-[150px] tracking-[0.2em] select-all">
                                                 {showCredentials.sandi}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="mt-8 flex gap-3">
+                                <div className="mt-6 sm:mt-8 flex gap-3">
                                     <button className="btn btn-secondary flex-1 py-3" onClick={closeModal}>
                                         TUTUP
                                     </button>
@@ -297,7 +356,7 @@ export default function SiswaPage() {
                             </div>
                         ) : (
                             <form onSubmit={handleSubmit}>
-                                <div className="p-8 space-y-6">
+                                <div className="p-5 sm:p-8 space-y-5 sm:space-y-6">
                                     <div className="space-y-2">
                                         <label className="form-label">Identitas Lengkap</label>
                                         <input
@@ -341,11 +400,11 @@ export default function SiswaPage() {
                                         </select>
                                     </div>
                                 </div>
-                                <div className="px-8 py-5 border-t border-slate-100 flex justify-end gap-3 bg-slate-50">
-                                    <button type="button" className="btn btn-secondary text-xs" onClick={closeModal}>
+                                <div className="px-5 sm:px-8 py-4 sm:py-5 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 bg-slate-50">
+                                    <button type="button" className="btn btn-secondary text-xs order-2 sm:order-1" onClick={closeModal}>
                                         BTL
                                     </button>
-                                    <button type="submit" className="btn btn-primary text-xs w-full sm:w-auto">
+                                    <button type="submit" className="btn btn-primary text-xs w-full sm:w-auto order-1 sm:order-2">
                                         {editMode ? 'SIMPAN PERUBAHAN' : 'GENERATE AKUN'}
                                     </button>
                                 </div>

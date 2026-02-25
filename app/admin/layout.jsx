@@ -107,7 +107,7 @@ export default function AdminLayout({ children }) {
           </button>
         </header>
 
-        <main className="p-6 md:p-10 flex-1 overflow-x-hidden">
+        <main className="p-4 md:p-10 flex-1 overflow-x-hidden">
           {children}
         </main>
       </div>
