@@ -89,6 +89,29 @@ export default function SiswaPage() {
         }
     };
 
+    const handleResetPassword = async (s) => {
+        if (!confirm(`Apakah Anda yakin ingin mereset sandi untuk ${s.nama}?`)) return;
+
+        try {
+            const res = await fetch('/api/admin/reset-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: s.id })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error);
+            
+            setShowCredentials({
+                kode: s.kode,
+                sandi: data.data.sandi
+            });
+            setShowModal(true);
+            setSuccess(`Sandi untuk ${s.nama} berhasil direset.`);
+        } catch (err) {
+            setError(err.message);
+        }
+    };
+
     const openAddModal = () => {
         setEditMode(false);
         setSelectedSiswa(null);
@@ -230,6 +253,16 @@ export default function SiswaPage() {
                                         <td className="px-8 py-5">
                                             <div className="flex items-center justify-end gap-2 text-slate-400">
                                                 <button
+                                                    className="p-2 hover:bg-amber-50 hover:text-amber-600 rounded-lg transition-colors border border-transparent hover:border-amber-100"
+                                                    onClick={() => handleResetPassword(s)}
+                                                    title="Reset Sandi"
+                                                >
+                                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.3 1.5 1.5 2.5v1c0 1 1 2 2 2h2c1 0 2-1 2-2v-1z" />
+                                                        <line x1="9" y1="22" x2="15" y2="22" strokeLinecap="round" strokeLinejoin="round" />
+                                                    </svg>
+                                                </button>
+                                                <button
                                                     className="p-2 hover:bg-slate-100 hover:text-primary rounded-lg transition-colors border border-transparent hover:border-slate-200"
                                                     onClick={() => openEditModal(s)}
                                                     title="Edit"
@@ -287,6 +320,15 @@ export default function SiswaPage() {
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-1 shrink-0">
+                                            <button
+                                                className="p-2 hover:bg-amber-50 hover:text-amber-600 rounded-lg transition-colors text-slate-400"
+                                                onClick={() => handleResetPassword(s)}
+                                            >
+                                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.3 1.5 1.5 2.5v1c0 1 1 2 2 2h2c1 0 2-1 2-2v-1z" />
+                                                    <line x1="9" y1="22" x2="15" y2="22" strokeLinecap="round" strokeLinejoin="round" />
+                                                </svg>
+                                            </button>
                                             <button
                                                 className="p-2 hover:bg-slate-100 hover:text-primary rounded-lg transition-colors text-slate-400"
                                                 onClick={() => openEditModal(s)}

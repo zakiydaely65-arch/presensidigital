@@ -16,6 +16,11 @@ export default function SiswaPage() {
   const [todayPresensi, setTodayPresensi] = useState([]);
   const [message, setMessage] = useState({ type: '', text: '' });
 
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({ sandiLama: '', sandiBaru: '', konfirmasiSandi: '' });
+  const [passwordMessage, setPasswordMessage] = useState({ type: '', text: '' });
+  const [passwordSubmitting, setPasswordSubmitting] = useState(false);
+
   const fetchUser = async () => {
     try {
       const res = await fetch('/api/auth/me');
@@ -145,6 +150,50 @@ export default function SiswaPage() {
       setMessage({ type: 'error', text: err.message });
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    setPasswordMessage({ type: '', text: '' });
+
+    if (passwordForm.sandiBaru !== passwordForm.konfirmasiSandi) {
+        setPasswordMessage({ type: 'error', text: 'Konfirmasi sandi baru tidak cocok.' });
+        return;
+    }
+
+    if (passwordForm.sandiBaru.length < 6) {
+        setPasswordMessage({ type: 'error', text: 'Sandi baru minimal 6 karakter.' });
+        return;
+    }
+
+    setPasswordSubmitting(true);
+
+    try {
+        const res = await fetch('/api/siswa/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sandiLama: passwordForm.sandiLama,
+                sandiBaru: passwordForm.sandiBaru
+            })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error);
+
+        setPasswordMessage({ type: 'success', text: data.message });
+        setPasswordForm({ sandiLama: '', sandiBaru: '', konfirmasiSandi: '' });
+        
+        setTimeout(() => {
+            setShowPasswordModal(false);
+            setPasswordMessage({ type: '', text: '' });
+        }, 2000);
+    } catch (err) {
+        setPasswordMessage({ type: 'error', text: err.message });
+    } finally {
+        setPasswordSubmitting(false);
     }
   };
 
@@ -398,6 +447,105 @@ export default function SiswaPage() {
           </div>
         )}
       </div>
+
+      {/* Security Settings Panel */}
+      <div className="bg-white rounded-3xl p-6 md:p-8 shadow-premium border border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-xl font-extrabold text-primary tracking-tight">Keamanan Akun {user ? user.nama : ''}</h2>
+          <p className="text-slate-500 font-medium text-sm mt-1">Ganti sandi Anda secara berkala untuk menjaga keamanan akun.</p>
+        </div>
+        <button 
+          onClick={() => {
+            setShowPasswordModal(true);
+            setPasswordMessage({ type: '', text: '' });
+            setPasswordForm({ sandiLama: '', sandiBaru: '', konfirmasiSandi: '' });
+          }}
+          className="btn bg-slate-50 text-primary hover:bg-slate-100 border border-slate-200 mt-2 sm:mt-0 font-bold whitespace-nowrap w-full sm:w-auto"
+        >
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+          UBAH SANDI
+        </button>
+      </div>
+
+      {/* Change Password Modal */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-primary/40 backdrop-blur-sm transition-all" onClick={() => setShowPasswordModal(false)}>
+            <div className="bg-white rounded-t-3xl sm:rounded-3xl shadow-premium w-full sm:max-w-md overflow-hidden transform transition-all border border-slate-100 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                <div className="px-5 sm:px-8 py-5 sm:py-6 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white z-10">
+                    <h2 className="text-lg sm:text-xl font-extrabold text-primary tracking-tight">
+                        Ubah Sandi Akun {user ? <span className="text-accent">{user.nama}</span> : ''}
+                    </h2>
+                    <button className="text-slate-400 hover:text-primary transition-colors p-2 rounded-xl hover:bg-slate-50" onClick={() => setShowPasswordModal(false)}>
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form onSubmit={handleChangePassword}>
+                    <div className="p-5 sm:p-8 space-y-5 sm:space-y-6">
+                        {passwordMessage.text && (
+                          <div className={`alert ${passwordMessage.type === 'success' ? 'alert-success' : 'alert-error'} py-3`}>
+                              {passwordMessage.type === 'success' ? (
+                                <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                              ) : (
+                                <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
+                              )}
+                              <span className="font-bold text-sm leading-tight">{passwordMessage.text}</span>
+                          </div>
+                        )}
+                        
+                        <div className="space-y-2">
+                            <label className="form-label text-xs uppercase tracking-widest font-black text-slate-400">Sandi Saat Ini</label>
+                            <input
+                                type="password"
+                                className="input py-3"
+                                value={passwordForm.sandiLama}
+                                onChange={(e) => setPasswordForm({ ...passwordForm, sandiLama: e.target.value })}
+                                required
+                                placeholder="Masukkan sandi lama Anda"
+                                minLength={6}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="form-label text-xs uppercase tracking-widest font-black text-slate-400">Sandi Baru</label>
+                            <input
+                                type="password"
+                                className="input py-3"
+                                value={passwordForm.sandiBaru}
+                                onChange={(e) => setPasswordForm({ ...passwordForm, sandiBaru: e.target.value })}
+                                required
+                                placeholder="Minimal 6 karakter"
+                                minLength={6}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="form-label text-xs uppercase tracking-widest font-black text-slate-400">Konfirmasi Sandi Baru</label>
+                            <input
+                                type="password"
+                                className="input py-3"
+                                value={passwordForm.konfirmasiSandi}
+                                onChange={(e) => setPasswordForm({ ...passwordForm, konfirmasiSandi: e.target.value })}
+                                required
+                                placeholder="Ulangi sandi baru Anda"
+                                minLength={6}
+                            />
+                        </div>
+                    </div>
+                    <div className="px-5 sm:px-8 py-4 sm:py-5 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 bg-slate-50">
+                        <button type="button" className="btn btn-secondary text-xs order-2 sm:order-1" onClick={() => setShowPasswordModal(false)}>
+                            BATAL
+                        </button>
+                        <button type="submit" className="btn btn-primary text-xs w-full sm:w-auto order-1 sm:order-2" disabled={passwordSubmitting}>
+                            {passwordSubmitting ? 'MENYIMPAN...' : 'SIMPAN SANDI'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+      )}
     </div>
   );
 }
