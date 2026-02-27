@@ -231,6 +231,7 @@ export default function SiswaPage() {
   }
 
   return (
+    <>
     <div className="space-y-8 animate-fadeIn max-w-[800px] mx-auto">
       {/* Geolocation Intelligence Panel */}
       <div className="bg-white rounded-3xl p-6 md:p-8 shadow-premium border border-slate-100 mb-8 relative overflow-hidden">
@@ -468,6 +469,7 @@ export default function SiswaPage() {
           UBAH SANDI
         </button>
       </div>
+    </div>
 
       {/* Change Password Modal */}
       {showPasswordModal && (
@@ -535,7 +537,7 @@ export default function SiswaPage() {
                         </div>
                     </div>
                     <div className="px-5 sm:px-8 py-4 sm:py-5 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 bg-slate-50">
-                        <button type="button" className="btn btn-secondary text-xs order-2 sm:order-1" onClick={() => setShowPasswordModal(false)}>
+                        <button type="button" className="btn btn-secondary !bg-white !text-slate-600 !border-slate-300 hover:!bg-slate-50 hover:!text-slate-800 text-xs order-2 sm:order-1" onClick={() => setShowPasswordModal(false)}>
                             BATAL
                         </button>
                         <button type="submit" className="btn btn-primary text-xs w-full sm:w-auto order-1 sm:order-2" disabled={passwordSubmitting}>
@@ -546,6 +548,6 @@ export default function SiswaPage() {
             </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
