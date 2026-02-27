@@ -71,6 +71,7 @@ export async function POST(request) {
             id: siswa.id,
             kode: siswa.kode,
             nama: siswa.nama,
+            kelas: siswa.kelas,
             organisasi: siswa.organisasi,
             role: 'siswa'
         });
