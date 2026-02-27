@@ -6,6 +6,8 @@ export default function SiswaPage() {
     const [siswa, setSiswa] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [confirmAction, setConfirmAction] = useState({ type: '', payload: null, title: '', description: '', confirmText: '', cancelText: 'Batal' });
     const [showCredentials, setShowCredentials] = useState(null);
     const [editMode, setEditMode] = useState(false);
     const [selectedSiswa, setSelectedSiswa] = useState(null);
@@ -75,9 +77,18 @@ export default function SiswaPage() {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!confirm('Apakah Anda yakin ingin menghapus siswa ini?')) return;
+    const requestDelete = (id) => {
+        setConfirmAction({
+            type: 'DELETE',
+            payload: id,
+            title: 'Hapus Data Siswa',
+            description: 'Apakah Anda yakin ingin menghapus data dan seluruh riwayat presensi siswa ini secara permanen?',
+            confirmText: 'YA, HAPUS DATA'
+        });
+        setShowConfirmModal(true);
+    };
 
+    const confirmDelete = async (id) => {
         try {
             const res = await fetch(`/api/siswa?id=${id}`, { method: 'DELETE' });
             const data = await res.json();
@@ -86,12 +97,23 @@ export default function SiswaPage() {
             fetchSiswa();
         } catch (err) {
             setError(err.message);
+        } finally {
+            setShowConfirmModal(false);
         }
     };
 
-    const handleResetPassword = async (s) => {
-        if (!confirm(`Apakah Anda yakin ingin mereset sandi untuk ${s.nama}?`)) return;
+    const requestResetPassword = (s) => {
+        setConfirmAction({
+            type: 'RESET_PASSWORD',
+            payload: s,
+            title: 'Reset Sandi',
+            description: `Sistem akan membuat ulang kata sandi secara acak untuk ${s.nama}. Apakah Anda yakin ingin melanjutkan?`,
+            confirmText: 'YA, RESET SANDI'
+        });
+        setShowConfirmModal(true);
+    };
 
+    const confirmResetPassword = async (s) => {
         try {
             const res = await fetch('/api/admin/reset-password', {
                 method: 'POST',
@@ -101,14 +123,26 @@ export default function SiswaPage() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
             
-            setShowCredentials({
-                kode: s.kode,
-                sandi: data.data.sandi
-            });
-            setShowModal(true);
-            setSuccess(`Sandi untuk ${s.nama} berhasil direset.`);
+            setShowConfirmModal(false);
+            setTimeout(() => {
+                setShowCredentials({
+                    kode: s.kode,
+                    sandi: data.data.sandi
+                });
+                setShowModal(true);
+                setSuccess(`Sandi untuk ${s.nama} berhasil direset.`);
+            }, 300);
         } catch (err) {
             setError(err.message);
+            setShowConfirmModal(false);
+        }
+    };
+
+    const handleConfirm = () => {
+        if (confirmAction.type === 'DELETE') {
+            confirmDelete(confirmAction.payload);
+        } else if (confirmAction.type === 'RESET_PASSWORD') {
+            confirmResetPassword(confirmAction.payload);
         }
     };
 
@@ -254,7 +288,7 @@ export default function SiswaPage() {
                                             <div className="flex items-center justify-end gap-2 text-slate-400">
                                                 <button
                                                     className="p-2 hover:bg-amber-50 hover:text-amber-600 rounded-lg transition-colors border border-transparent hover:border-amber-100"
-                                                    onClick={() => handleResetPassword(s)}
+                                                    onClick={() => requestResetPassword(s)}
                                                     title="Reset Sandi"
                                                 >
                                                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -274,7 +308,7 @@ export default function SiswaPage() {
                                                 </button>
                                                 <button
                                                     className="p-2 hover:bg-rose-50 hover:text-rose-600 rounded-lg transition-colors border border-transparent hover:border-rose-100"
-                                                    onClick={() => handleDelete(s.id)}
+                                                    onClick={() => requestDelete(s.id)}
                                                     title="Hapus"
                                                 >
                                                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -322,7 +356,7 @@ export default function SiswaPage() {
                                         <div className="flex items-center gap-1 shrink-0">
                                             <button
                                                 className="p-2 hover:bg-amber-50 hover:text-amber-600 rounded-lg transition-colors text-slate-400"
-                                                onClick={() => handleResetPassword(s)}
+                                                onClick={() => requestResetPassword(s)}
                                             >
                                                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.3 1.5 1.5 2.5v1c0 1 1 2 2 2h2c1 0 2-1 2-2v-1z" />
@@ -340,7 +374,7 @@ export default function SiswaPage() {
                                             </button>
                                             <button
                                                 className="p-2 hover:bg-rose-50 hover:text-rose-600 rounded-lg transition-colors text-slate-400"
-                                                onClick={() => handleDelete(s.id)}
+                                                onClick={() => requestDelete(s.id)}
                                             >
                                                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                                                     <polyline points="3 6 5 6 21 6" strokeLinecap="round" strokeLinejoin="round" />
@@ -447,11 +481,47 @@ export default function SiswaPage() {
                                         BTL
                                     </button>
                                     <button type="submit" className="btn btn-primary text-xs w-full sm:w-auto order-1 sm:order-2">
-                                        {editMode ? 'SIMPAN PERUBAHAN' : 'GENERATE AKUN'}
+                                        {editMode ? 'SIMPAN PERUBAHAN' : 'TAMBAHKAN ANGGOTA'}
                                     </button>
                                 </div>
                             </form>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {/* Interactive Confirm Modal */}
+            {showConfirmModal && (
+                <div className="fixed inset-0 z-[120] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-primary/40 backdrop-blur-sm transition-all" onClick={() => setShowConfirmModal(false)}>
+                    <div className="bg-white rounded-t-3xl sm:rounded-3xl shadow-premium w-full sm:max-w-sm overflow-hidden transform transition-all border border-slate-100 p-6 text-center" onClick={(e) => e.stopPropagation()}>
+                        <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center border-4 border-white shadow-sm mb-4 ${confirmAction.type === 'DELETE' ? 'bg-rose-50 text-rose-500' : 'bg-amber-50 text-amber-500'}`}>
+                            {confirmAction.type === 'DELETE' ? (
+                                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            ) : (
+                                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.3 1.5 1.5 2.5v1c0 1 1 2 2 2h2c1 0 2-1 2-2v-1z" />
+                                </svg>
+                            )}
+                        </div>
+                        <h3 className="text-xl font-extrabold text-primary tracking-tight mb-2">
+                            {confirmAction.title}
+                        </h3>
+                        <p className="text-slate-500 text-sm font-medium mb-8">
+                            {confirmAction.description}
+                        </p>
+                        <div className="flex gap-3">
+                            <button className="btn btn-secondary flex-1 text-xs" onClick={() => setShowConfirmModal(false)}>
+                                {confirmAction.cancelText}
+                            </button>
+                            <button 
+                                className={`btn flex-1 text-xs text-white ${confirmAction.type === 'DELETE' ? 'bg-rose-500 hover:bg-rose-600 border border-transparent shadow-[0_4px_12px_rgba(244,63,94,0.3)]' : 'bg-amber-500 hover:bg-amber-600 border border-transparent shadow-[0_4px_12px_rgba(245,158,11,0.3)]'}`}
+                                onClick={handleConfirm}
+                            >
+                                {confirmAction.confirmText}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
