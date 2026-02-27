@@ -40,7 +40,7 @@ export default function SiswaLayout({ children }) {
             </div>
             <div>
               <h1 className="font-extrabold text-primary text-xl tracking-tight leading-none">
-                Presensi. <span className="text-accent ml-1 hidden sm:inline-block">{user?.nama ? `Halo, ${user.nama.split(' ')[0]}!` : ''}</span>
+                Presensi. <span className="text-accent ml-1">{user?.nama ? `Halo, ${user.nama.split(' ')[0]}!` : ''}</span>
               </h1>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">
                 {user?.organisasi || 'MEMUAT...'} <span className="text-primary">•</span> {user?.kelas || ''}
