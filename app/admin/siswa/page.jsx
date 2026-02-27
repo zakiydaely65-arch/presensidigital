@@ -427,7 +427,7 @@ export default function SiswaPage() {
                                     </div>
                                 </div>
                                 <div className="mt-6 sm:mt-8 flex gap-3">
-                                    <button className="btn btn-secondary flex-1 py-3" onClick={closeModal}>
+                                    <button className="btn btn-secondary !bg-white !text-slate-600 !border-slate-300 hover:!bg-slate-50 hover:!text-slate-800 flex-1 py-3" onClick={closeModal}>
                                         TUTUP
                                     </button>
                                 </div>
@@ -479,7 +479,7 @@ export default function SiswaPage() {
                                     </div>
                                 </div>
                                 <div className="px-5 sm:px-8 py-4 sm:py-5 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 bg-slate-50">
-                                    <button type="button" className="btn btn-secondary text-slate-500 hover:text-slate-700 text-xs order-2 sm:order-1" onClick={closeModal}>
+                                    <button type="button" className="btn btn-secondary !bg-white !text-slate-600 !border-slate-300 hover:!bg-slate-50 hover:!text-slate-800 text-xs order-2 sm:order-1" onClick={closeModal}>
                                         BATAL
                                     </button>
                                     <button type="submit" className="btn btn-primary text-xs w-full sm:w-auto order-1 sm:order-2">
@@ -514,7 +514,7 @@ export default function SiswaPage() {
                             {confirmAction.description}
                         </p>
                         <div className="flex gap-3 mt-4">
-                            <button className="btn btn-secondary text-slate-500 hover:text-slate-700 flex-1 text-xs" onClick={() => setShowConfirmModal(false)}>
+                            <button className="btn btn-secondary !bg-white !text-slate-600 !border-slate-300 hover:!bg-slate-50 hover:!text-slate-800 flex-1 text-xs" onClick={() => setShowConfirmModal(false)}>
                                 {confirmAction.cancelText}
                             </button>
                             <button 
