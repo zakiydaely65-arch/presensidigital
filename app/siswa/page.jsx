@@ -451,7 +451,7 @@ export default function SiswaPage() {
       {/* Security Settings Panel */}
       <div className="bg-white rounded-3xl p-6 md:p-8 shadow-premium border border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-xl font-extrabold text-primary tracking-tight">Keamanan Akun {user ? user.nama : ''}</h2>
+          <h2 className="text-xl font-extrabold text-primary tracking-tight">Keamanan Akun {user?.nama ? user.nama : ''}</h2>
           <p className="text-slate-500 font-medium text-sm mt-1">Ganti sandi Anda secara berkala untuk menjaga keamanan akun.</p>
         </div>
         <button 
@@ -475,7 +475,7 @@ export default function SiswaPage() {
             <div className="bg-white rounded-t-3xl sm:rounded-3xl shadow-premium w-full sm:max-w-md overflow-hidden transform transition-all border border-slate-100 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                 <div className="px-5 sm:px-8 py-5 sm:py-6 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white z-10">
                     <h2 className="text-lg sm:text-xl font-extrabold text-primary tracking-tight">
-                        Ubah Sandi Akun {user ? <span className="text-accent">{user.nama}</span> : ''}
+                        Ubah Sandi Akun {user?.nama ? <span className="text-accent">{user.nama}</span> : ''}
                     </h2>
                     <button className="text-slate-400 hover:text-primary transition-colors p-2 rounded-xl hover:bg-slate-50" onClick={() => setShowPasswordModal(false)}>
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
