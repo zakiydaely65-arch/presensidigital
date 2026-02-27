@@ -183,6 +183,7 @@ export default function SiswaPage() {
     }
 
     return (
+        <>
         <div className="max-w-7xl mx-auto space-y-6 md:space-y-8 animate-fadeIn">
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 pb-4 md:pb-6 border-b border-slate-200">
                 <div>
@@ -390,6 +391,7 @@ export default function SiswaPage() {
                     )}
                 </div>
             </div>
+        </div>
 
             {showModal && (
                 <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-primary/40 backdrop-blur-sm transition-all" onClick={closeModal}>
@@ -477,8 +479,8 @@ export default function SiswaPage() {
                                     </div>
                                 </div>
                                 <div className="px-5 sm:px-8 py-4 sm:py-5 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 bg-slate-50">
-                                    <button type="button" className="btn btn-secondary text-xs order-2 sm:order-1" onClick={closeModal}>
-                                        BTL
+                                    <button type="button" className="btn btn-secondary text-slate-500 hover:text-slate-700 text-xs order-2 sm:order-1" onClick={closeModal}>
+                                        BATAL
                                     </button>
                                     <button type="submit" className="btn btn-primary text-xs w-full sm:w-auto order-1 sm:order-2">
                                         {editMode ? 'SIMPAN PERUBAHAN' : 'TAMBAHKAN ANGGOTA'}
@@ -511,8 +513,8 @@ export default function SiswaPage() {
                         <p className="text-slate-500 text-sm font-medium mb-8">
                             {confirmAction.description}
                         </p>
-                        <div className="flex gap-3">
-                            <button className="btn btn-secondary flex-1 text-xs" onClick={() => setShowConfirmModal(false)}>
+                        <div className="flex gap-3 mt-4">
+                            <button className="btn btn-secondary text-slate-500 hover:text-slate-700 flex-1 text-xs" onClick={() => setShowConfirmModal(false)}>
                                 {confirmAction.cancelText}
                             </button>
                             <button 
@@ -525,6 +527,6 @@ export default function SiswaPage() {
                     </div>
                 </div>
             )}
-        </div>
+        </>
     );
 }
