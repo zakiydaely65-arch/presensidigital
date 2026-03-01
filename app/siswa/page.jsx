@@ -452,7 +452,7 @@ export default function SiswaPage() {
       {/* Security Settings Panel */}
       <div className="bg-white rounded-3xl p-6 md:p-8 shadow-premium border border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-xl font-extrabold text-primary tracking-tight">Keamanan Akun {user?.nama ? user.nama : ''}</h2>
+          <h2 className="text-xl font-extrabold text-primary tracking-tight">Keamanan Akun Anda</h2>
           <p className="text-slate-500 font-medium text-sm mt-1">Ganti sandi Anda secara berkala untuk menjaga keamanan akun.</p>
         </div>
         <button 
