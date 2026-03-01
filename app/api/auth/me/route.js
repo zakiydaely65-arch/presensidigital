@@ -3,7 +3,7 @@ import { getUserFromRequest } from '@/lib/auth';
 
 export async function GET(request) {
     try {
-        const user = getUserFromRequest(request);
+        const user = await getUserFromRequest(request);
 
         if (!user) {
             return NextResponse.json(
@@ -19,6 +19,7 @@ export async function GET(request) {
                 nama: user.nama,
                 kode: user.kode,
                 organisasi: user.organisasi,
+                kelas: user.kelas,
                 role: user.role
             }
         });
