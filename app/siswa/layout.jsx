@@ -39,8 +39,7 @@ export default function SiswaLayout({ children }) {
               </svg>
             </div>
             <div>
-              <h1 className="font-extrabold text-primary text-xl tracking-tight leading-none">Presensi.</h1>
-              <p className="text-[10px] font-bold text-accent uppercase tracking-wider mt-1">{user?.organisasi || 'MEMUAT...'}</p>
+              <h1 className="font-extrabold text-blue-700 text-xl tracking-tight leading-none">{user?.organisasi || 'MEMUAT...'}</h1>
             </div>
           </div>
 
