@@ -6,6 +6,8 @@ import { getDistanceFromSchool } from '@/lib/geolocation';
 
 // GET - Export data to Excel
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 export async function GET(request) {
     try {
         const user = await getUserFromRequest(request);
@@ -82,16 +84,27 @@ export async function GET(request) {
 
             dataToExport = filteredPresensi.map(p => {
                 let jarakStr = '';
-                if (!p.is_at_school && p.latitude && p.longitude) {
-                    jarakStr = ` (${Math.round(getDistanceFromSchool(p.latitude, p.longitude))}m)`;
+                try {
+                    if (!p.is_at_school && p.latitude != null && p.longitude != null && p.latitude !== '' && p.longitude !== '') {
+                        jarakStr = ` (${Math.round(getDistanceFromSchool(Number(p.latitude), Number(p.longitude)))}m)`;
+                    }
+                } catch (err) {
+                    console.error('Export jarak calc error:', err);
                 }
+
+                // Derive display status: hadir + off-site = HADIR (LUAR RADIUS)
+                let displayStatus = p.status.toUpperCase();
+                if (p.status === 'hadir' && !p.is_at_school) {
+                    displayStatus = 'HADIR (LUAR RADIUS)';
+                }
+
                 return {
-                    'Tanggal': p.tanggal, // DB uses date format YYYY-MM-DD
+                    'Tanggal': p.tanggal,
                     'Waktu': p.waktu,
                     'Nama': p.siswa?.nama || 'Unknown',
                     'Kelas': p.siswa?.kelas || 'Unknown',
                     'Organisasi': p.siswa?.organisasi || 'Unknown',
-                    'Status': p.status.toUpperCase(),
+                    'Status': displayStatus,
                     'Lokasi': (p.is_at_school ? 'Di Sekolah' : 'Luar Sekolah') + jarakStr
                 };
             });

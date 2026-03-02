@@ -79,7 +79,14 @@ export async function GET(request) {
             };
         });
 
-        return NextResponse.json({ success: true, data: enrichedPresensi });
+        // if the organisasi filter was passed and Supabase didn't filter it correctly at query level,
+        // we'll filter it locally
+        let finalData = enrichedPresensi;
+        if (organisasi) {
+            finalData = enrichedPresensi.filter(p => p.organisasiSiswa === organisasi);
+        }
+
+        return NextResponse.json({ success: true, data: finalData });
 
     } catch (error) {
         console.error('Get presensi error:', error);

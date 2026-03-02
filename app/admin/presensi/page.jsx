@@ -71,21 +71,22 @@ export default function PresensiPage() {
             const data = await res.json();
 
             if (data.success) {
-                let filteredData = data.data;
-
-                if (statusFilter) {
-                    filteredData = filteredData.filter(p => p.status === statusFilter);
-                }
-
-                setPresensi(filteredData);
-
+                // Kalkulasikan statistik berdasarkan semua data dari organisasi yang dipilih sebelum menerapkan filter status
                 const newStats = { hadir: 0, hadir_luar_radius: 0, izin: 0, sakit: 0, pulang: 0 };
-                filteredData.forEach(p => {
+                data.data.forEach(p => {
                     if (newStats[p.status] !== undefined) {
                         newStats[p.status]++;
                     }
                 });
                 setStats(newStats);
+
+                // Terapkan filter status pada baris Datatable
+                let filteredData = data.data;
+                if (statusFilter) {
+                    filteredData = filteredData.filter(p => p.status === statusFilter);
+                }
+
+                setPresensi(filteredData);
             }
         } catch (error) {
             console.error('Error fetching presensi:', error);
@@ -233,7 +234,7 @@ export default function PresensiPage() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6">
                 <div className="card p-4 md:p-6 border-l-4 md:border-l-[6px] border-l-emerald-500 rounded-2xl md:rounded-[24px]">
                     <div className="text-2xl md:text-4xl font-extrabold text-primary tracking-tight">{stats.hadir}</div>
                     <div className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1.5 md:mt-2">Data Hadir</div>
@@ -302,7 +303,7 @@ export default function PresensiPage() {
                                             </td>
                                             <td className="px-6 py-5">
                                                 <span className={`badge ${getStatusBadge(p.status)}`}>
-                                                    {p.status}
+                                                    {p.status === 'hadir_luar_radius' ? 'Hadir (Luar Radius)' : p.status}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-5">
@@ -345,7 +346,9 @@ export default function PresensiPage() {
                                                     </span>
                                                 </div>
                                             </div>
-                                            <span className={`badge ${getStatusBadge(p.status)} shrink-0`}>{p.status}</span>
+                                            <span className={`badge ${getStatusBadge(p.status)} shrink-0`}>
+                                                {p.status === 'hadir_luar_radius' ? 'Hadir (Luar Radius)' : p.status}
+                                            </span>
                                         </div>
                                         <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium">
                                             <span className="font-mono font-bold text-primary">{p.waktu}</span>
