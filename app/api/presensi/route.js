@@ -4,6 +4,8 @@ import { getUserFromRequest } from '@/lib/auth';
 import { isWithinSchool, getDistanceFromSchool } from '@/lib/geolocation';
 import { ATTENDANCE_STATUS } from '@/lib/constants';
 
+export const dynamic = 'force-dynamic';
+
 // GET - Get attendance records
 export async function GET(request) {
     try {

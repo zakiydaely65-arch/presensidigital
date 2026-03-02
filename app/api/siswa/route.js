@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { getUserFromRequest, generateCredentials, hashPassword } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 // GET - List all students (admin only)
 export async function GET(request) {
     try {
