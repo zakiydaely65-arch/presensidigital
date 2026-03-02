@@ -323,12 +323,12 @@ export default function SiswaPage() {
               {isAtSchool ? (
                 <>
                   <button
-                    className={`relative flex items-center justify-between p-6 rounded-2xl border-2 transition-all duration-300 ${hasStatus('hadir')
+                    className={`relative flex items-center justify-between p-6 rounded-2xl border-2 transition-all duration-300 ${(hasStatus('hadir') || hasStatus('hadir_luar_radius'))
                       ? 'bg-slate-50 border-slate-200 opacity-60 cursor-not-allowed'
                       : 'bg-white border-slate-200 hover:border-emerald-500 hover:shadow-lg focus:ring-4 focus:ring-emerald-500/20'
                       }`}
                     onClick={() => handlePresensi('hadir')}
-                    disabled={submitting || hasStatus('hadir')}
+                    disabled={submitting || hasStatus('hadir') || hasStatus('hadir_luar_radius')}
                   >
                     <div className="flex items-center gap-5">
                       <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
@@ -339,7 +339,7 @@ export default function SiswaPage() {
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Hadir Di Lokasi</span>
                       </div>
                     </div>
-                    {hasStatus('hadir') && <span className="absolute top-4 right-4 text-[10px] font-black tracking-widest uppercase bg-slate-100 text-slate-500 px-3 py-1.5 rounded-lg border border-slate-200">Logged</span>}
+                    {(hasStatus('hadir') || hasStatus('hadir_luar_radius')) && <span className="absolute top-4 right-4 text-[10px] font-black tracking-widest uppercase bg-slate-100 text-slate-500 px-3 py-1.5 rounded-lg border border-slate-200">Logged</span>}
                   </button>
 
                   <button
@@ -365,12 +365,12 @@ export default function SiswaPage() {
               ) : (
                 <>
                   <button
-                    className={`relative flex items-center justify-between p-6 rounded-2xl border-2 transition-all duration-300 ${hasStatus('hadir_luar_radius')
+                    className={`relative flex items-center justify-between p-6 rounded-2xl border-2 transition-all duration-300 ${(hasStatus('hadir_luar_radius') || hasStatus('hadir'))
                       ? 'bg-slate-50 border-slate-200 opacity-60 cursor-not-allowed'
                       : 'bg-white border-slate-200 hover:border-amber-500 hover:shadow-lg focus:ring-4 focus:ring-amber-500/20'
                       }`}
                     onClick={() => handlePresensi('hadir_luar_radius')}
-                    disabled={submitting || hasStatus('hadir_luar_radius') || isAtSchool === null}
+                    disabled={submitting || hasStatus('hadir_luar_radius') || hasStatus('hadir') || isAtSchool === null}
                   >
                     <div className="flex items-center gap-5">
                       <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 shrink-0">
@@ -381,7 +381,7 @@ export default function SiswaPage() {
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Luar Radius</span>
                       </div>
                     </div>
-                    {hasStatus('hadir_luar_radius') && <span className="absolute top-4 right-4 text-[10px] font-black tracking-widest uppercase bg-slate-100 text-slate-500 px-3 py-1.5 rounded-lg border border-slate-200">Logged</span>}
+                    {(hasStatus('hadir_luar_radius') || hasStatus('hadir')) && <span className="absolute top-4 right-4 text-[10px] font-black tracking-widest uppercase bg-slate-100 text-slate-500 px-3 py-1.5 rounded-lg border border-slate-200">Logged</span>}
                   </button>
                   <button
                     className={`relative flex items-center justify-between p-6 rounded-2xl border-2 transition-all duration-300 ${hasStatus('izin')

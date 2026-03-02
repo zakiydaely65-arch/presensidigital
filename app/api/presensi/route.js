@@ -161,8 +161,9 @@ export async function POST(request) {
         if (checkError) throw checkError;
 
         if (existing) {
+            const statusName = status === 'hadir_luar_radius' ? 'Hadir Off-Site' : status;
             return NextResponse.json(
-                { error: `Anda sudah melakukan presensi dengan status "${status}" hari ini` },
+                { error: `Anda sudah melakukan presensi dengan status "${statusName}" hari ini` },
                 { status: 400 }
             );
         }
