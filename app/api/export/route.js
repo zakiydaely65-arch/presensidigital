@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
 import { supabase } from '@/lib/supabase';
 import { getUserFromRequest } from '@/lib/auth';
+import { getDistanceFromSchool } from '@/lib/geolocation';
 
 // GET - Export data to Excel
 export const dynamic = 'force-dynamic';
@@ -59,9 +60,15 @@ export async function GET(request) {
                 query = query.gte('tanggal', startDate).lte('tanggal', endDate);
             }
 
-            // Filter by status
+            // Filter by status (handle derived hadir_luar_radius status)
             if (status && status !== 'semua') {
-                query = query.eq('status', status);
+                if (status === 'hadir_luar_radius') {
+                    query = query.eq('status', 'hadir').eq('is_at_school', false);
+                } else if (status === 'hadir') {
+                    query = query.eq('status', 'hadir').eq('is_at_school', true);
+                } else {
+                    query = query.eq('status', status);
+                }
             }
 
             const { data: presensi, error } = await query;
@@ -73,15 +80,21 @@ export async function GET(request) {
                 filteredPresensi = presensi.filter(p => p.siswa?.organisasi === organisasi);
             }
 
-            dataToExport = filteredPresensi.map(p => ({
-                'Tanggal': p.tanggal, // DB uses date format YYYY-MM-DD
-                'Waktu': p.waktu,
-                'Nama': p.siswa?.nama || 'Unknown',
-                'Kelas': p.siswa?.kelas || 'Unknown',
-                'Organisasi': p.siswa?.organisasi || 'Unknown',
-                'Status': p.status.toUpperCase(),
-                'Lokasi': p.is_at_school ? 'Di Sekolah' : 'Luar Sekolah'
-            }));
+            dataToExport = filteredPresensi.map(p => {
+                let jarakStr = '';
+                if (!p.is_at_school && p.latitude && p.longitude) {
+                    jarakStr = ` (${Math.round(getDistanceFromSchool(p.latitude, p.longitude))}m)`;
+                }
+                return {
+                    'Tanggal': p.tanggal, // DB uses date format YYYY-MM-DD
+                    'Waktu': p.waktu,
+                    'Nama': p.siswa?.nama || 'Unknown',
+                    'Kelas': p.siswa?.kelas || 'Unknown',
+                    'Organisasi': p.siswa?.organisasi || 'Unknown',
+                    'Status': p.status.toUpperCase(),
+                    'Lokasi': (p.is_at_school ? 'Di Sekolah' : 'Luar Sekolah') + jarakStr
+                };
+            });
 
             filename = `presensi_${organisasi || 'semua'}_${startDate || 'all'}_${endDate || 'all'}.xlsx`;
         }

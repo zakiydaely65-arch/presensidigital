@@ -200,6 +200,7 @@ export default function SiswaPage() {
   const getStatusIcon = (status) => {
     const icons = {
       hadir: '✓',
+      hadir_luar_radius: '✓',
       izin: '—',
       sakit: '+',
       pulang: '←'
@@ -210,6 +211,7 @@ export default function SiswaPage() {
   const getStatusBadge = (status) => {
     const badges = {
       hadir: 'badge-success',
+      hadir_luar_radius: 'badge-warning',
       izin: 'badge-warning',
       sakit: 'badge-danger',
       pulang: 'badge-primary'
@@ -363,6 +365,25 @@ export default function SiswaPage() {
               ) : (
                 <>
                   <button
+                    className={`relative flex items-center justify-between p-6 rounded-2xl border-2 transition-all duration-300 ${hasStatus('hadir_luar_radius')
+                      ? 'bg-slate-50 border-slate-200 opacity-60 cursor-not-allowed'
+                      : 'bg-white border-slate-200 hover:border-amber-500 hover:shadow-lg focus:ring-4 focus:ring-amber-500/20'
+                      }`}
+                    onClick={() => handlePresensi('hadir_luar_radius')}
+                    disabled={submitting || hasStatus('hadir_luar_radius') || isAtSchool === null}
+                  >
+                    <div className="flex items-center gap-5">
+                      <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 shrink-0">
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                      </div>
+                      <div className="text-left flex flex-col gap-1 items-start">
+                        <span className="font-extrabold text-lg text-primary tracking-tight">Hadir Off-Site</span>
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Luar Radius</span>
+                      </div>
+                    </div>
+                    {hasStatus('hadir_luar_radius') && <span className="absolute top-4 right-4 text-[10px] font-black tracking-widest uppercase bg-slate-100 text-slate-500 px-3 py-1.5 rounded-lg border border-slate-200">Logged</span>}
+                  </button>
+                  <button
                     className={`relative flex items-center justify-between p-6 rounded-2xl border-2 transition-all duration-300 ${hasStatus('izin')
                       ? 'bg-slate-50 border-slate-200 opacity-60 cursor-not-allowed'
                       : 'bg-white border-slate-200 hover:border-accent hover:shadow-lg focus:ring-4 focus:ring-accent/20'
@@ -429,10 +450,10 @@ export default function SiswaPage() {
                     </div>
                     <div>
                       <span className={`badge mb-1.5 ${getStatusBadge(p.status)}`}>
-                        {p.status}
+                        {p.status.replace('_', ' ')}
                       </span>
                       <div className="text-[11px] font-extrabold text-slate-400 tracking-widest uppercase flex items-center gap-2">
-                        {p.waktu} • {p.isAtSchool ? 'ON-SITE' : 'OFF-SITE'}
+                        {p.waktu} • {p.isAtSchool ? 'ON-SITE' : `OFF-SITE ${p.jarak ? `(${Math.round(p.jarak)}m)` : ''}`}
                       </div>
                     </div>
                   </div>

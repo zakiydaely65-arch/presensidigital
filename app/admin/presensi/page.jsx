@@ -16,7 +16,7 @@ export default function PresensiPage() {
     });
     const [organisasiFilter, setOrganisasiFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
-    const [stats, setStats] = useState({ hadir: 0, izin: 0, sakit: 0, pulang: 0 });
+    const [stats, setStats] = useState({ hadir: 0, hadir_luar_radius: 0, izin: 0, sakit: 0, pulang: 0 });
 
     useEffect(() => {
         const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
@@ -79,7 +79,7 @@ export default function PresensiPage() {
 
                 setPresensi(filteredData);
 
-                const newStats = { hadir: 0, izin: 0, sakit: 0, pulang: 0 };
+                const newStats = { hadir: 0, hadir_luar_radius: 0, izin: 0, sakit: 0, pulang: 0 };
                 filteredData.forEach(p => {
                     if (newStats[p.status] !== undefined) {
                         newStats[p.status]++;
@@ -97,6 +97,7 @@ export default function PresensiPage() {
     const getStatusBadge = (status) => {
         const badges = {
             hadir: 'badge-success',
+            hadir_luar_radius: 'badge-warning',
             izin: 'badge-warning',
             sakit: 'badge-danger',
             pulang: 'badge-primary'
@@ -186,6 +187,7 @@ export default function PresensiPage() {
                             >
                                 <option value="">Semua</option>
                                 <option value="hadir">Hadir</option>
+                                <option value="hadir_luar_radius">Hadir (Luar Radius)</option>
                                 <option value="pulang">Pulang</option>
                                 <option value="izin">Izin</option>
                                 <option value="sakit">Sakit</option>
@@ -235,6 +237,10 @@ export default function PresensiPage() {
                 <div className="card p-4 md:p-6 border-l-4 md:border-l-[6px] border-l-emerald-500 rounded-2xl md:rounded-[24px]">
                     <div className="text-2xl md:text-4xl font-extrabold text-primary tracking-tight">{stats.hadir}</div>
                     <div className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1.5 md:mt-2">Data Hadir</div>
+                </div>
+                <div className="card p-4 md:p-6 border-l-4 md:border-l-[6px] border-l-amber-400 rounded-2xl md:rounded-[24px]">
+                    <div className="text-2xl md:text-4xl font-extrabold text-primary tracking-tight">{stats.hadir_luar_radius}</div>
+                    <div className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1.5 md:mt-2">Data Hadir (Luar Radius)</div>
                 </div>
                 <div className="card p-4 md:p-6 border-l-4 md:border-l-[6px] border-l-amber-500 rounded-2xl md:rounded-[24px]">
                     <div className="text-2xl md:text-4xl font-extrabold text-primary tracking-tight">{stats.izin}</div>
@@ -304,7 +310,7 @@ export default function PresensiPage() {
                                                     {p.isAtSchool ? (
                                                         <><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> ON-SITE</>
                                                     ) : (
-                                                        <><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> OFF-SITE</>
+                                                        <><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> OFF-SITE {p.jarak ? `(${Math.round(p.jarak)}m)` : ''}</>
                                                     )}
                                                 </span>
                                             </td>
@@ -348,7 +354,7 @@ export default function PresensiPage() {
                                             <span className="text-slate-300">•</span>
                                             <span className="flex items-center gap-1">
                                                 <span className={`w-1.5 h-1.5 rounded-full ${p.isAtSchool ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
-                                                {p.isAtSchool ? 'ON-SITE' : 'OFF-SITE'}
+                                                {p.isAtSchool ? 'ON-SITE' : `OFF-SITE ${p.jarak ? `(${Math.round(p.jarak)}m)` : ''}`}
                                             </span>
                                         </div>
                                     </div>

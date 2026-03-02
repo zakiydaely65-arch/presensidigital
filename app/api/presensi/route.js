@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { getUserFromRequest } from '@/lib/auth';
-import { isWithinSchool } from '@/lib/geolocation';
+import { isWithinSchool, getDistanceFromSchool } from '@/lib/geolocation';
 import { ATTENDANCE_STATUS } from '@/lib/constants';
 
 // GET - Get attendance records
@@ -52,14 +52,32 @@ export async function GET(request) {
         if (error) throw error;
 
         // Enrich and format for frontend compatibility
-        const enrichedPresensi = presensi.map(p => ({
-            ...p,
-            siswaId: p.siswa_id, // Map back to camelCase for UI if needed
-            namaSiswa: p.siswa?.nama || 'Unknown',
-            kelasSiswa: p.siswa?.kelas || 'Unknown',
-            organisasiSiswa: p.siswa?.organisasi || 'Unknown',
-            isAtSchool: p.is_at_school // Map snake_case DB column to camelCase for frontend
-        }));
+        const enrichedPresensi = presensi.map(p => {
+            let statusUi = p.status;
+            if (p.status === 'hadir' && !p.is_at_school) {
+                statusUi = 'hadir_luar_radius';
+            }
+
+            let computedJarak = null;
+            try {
+                if (p.latitude != null && p.longitude != null && p.latitude !== '' && p.longitude !== '') {
+                    computedJarak = getDistanceFromSchool(Number(p.latitude), Number(p.longitude));
+                }
+            } catch (err) {
+                console.error('jarak calculation error', err);
+            }
+
+            return {
+                ...p,
+                status: statusUi,
+                siswaId: p.siswa_id, // Map back to camelCase for UI if needed
+                namaSiswa: p.siswa?.nama || 'Unknown',
+                kelasSiswa: p.siswa?.kelas || 'Unknown',
+                organisasiSiswa: p.siswa?.organisasi || 'Unknown',
+                isAtSchool: p.is_at_school, // Map snake_case DB column to camelCase for frontend
+                jarak: computedJarak
+            };
+        });
 
         return NextResponse.json({ success: true, data: enrichedPresensi });
 
@@ -115,9 +133,9 @@ export async function POST(request) {
                 );
             }
         } else {
-            if (status !== ATTENDANCE_STATUS.IZIN && status !== ATTENDANCE_STATUS.SAKIT) {
+            if (status !== ATTENDANCE_STATUS.IZIN && status !== ATTENDANCE_STATUS.SAKIT && status !== ATTENDANCE_STATUS.HADIR_LUAR_RADIUS) {
                 return NextResponse.json(
-                    { error: 'Anda berada di luar sekolah. Hanya bisa memilih Izin atau Sakit.' },
+                    { error: 'Anda berada di luar sekolah. Hanya bisa memilih Izin, Sakit, atau Hadir (Luar Radius).' },
                     { status: 400 }
                 );
             }
@@ -129,12 +147,15 @@ export async function POST(request) {
         const wibDate = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }); // YYYY-MM-DD format
         const wibTime = now.toLocaleTimeString('en-GB', { timeZone: 'Asia/Jakarta', hour12: false }); // HH:MM:SS format
 
+        // Map 'hadir_luar_radius' to 'hadir' for database insertion to pass ENUM constraints
+        const supabaseStatus = status === ATTENDANCE_STATUS.HADIR_LUAR_RADIUS ? ATTENDANCE_STATUS.HADIR : status;
+
         const { data: existing, error: checkError } = await supabase
             .from('presensi')
             .select('id')
             .eq('siswa_id', user.id)
             .eq('tanggal', wibDate)
-            .eq('status', status)
+            .eq('status', supabaseStatus)
             .maybeSingle();
 
         if (checkError) throw checkError;
@@ -150,7 +171,7 @@ export async function POST(request) {
             .from('presensi')
             .insert([{
                 siswa_id: user.id,
-                status,
+                status: supabaseStatus,
                 latitude,
                 longitude,
                 is_at_school: atSchool,
