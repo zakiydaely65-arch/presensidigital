@@ -63,6 +63,11 @@ export async function GET(request) {
                 query = query.gte('tanggal', startDate).lte('tanggal', endDate);
             }
 
+            // Filter by organization natively
+            if (organisasi) {
+                query = query.eq('siswa.organisasi', organisasi);
+            }
+
             // Filter by status (handle derived hadir_luar_radius status)
             if (status && status !== 'semua') {
                 if (status === 'hadir_luar_radius') {

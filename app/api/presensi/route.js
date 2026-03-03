@@ -23,6 +23,7 @@ export async function GET(request) {
         const endDate = searchParams.get('endDate');
         const organisasi = searchParams.get('organisasi');
         const siswaId = searchParams.get('siswaId');
+        const status = searchParams.get('status');
 
         let query = supabase
             .from('presensi')
@@ -47,6 +48,17 @@ export async function GET(request) {
 
             if (organisasi) {
                 query = query.eq('siswa.organisasi', organisasi);
+            }
+            
+            // Filter by status (handle derived hadir_luar_radius status) natively
+            if (status && status !== 'semua') {
+                if (status === 'hadir_luar_radius') {
+                    query = query.eq('status', 'hadir').eq('is_at_school', false);
+                } else if (status === 'hadir') {
+                    query = query.eq('status', 'hadir').eq('is_at_school', true);
+                } else {
+                    query = query.eq('status', status);
+                }
             }
         }
 

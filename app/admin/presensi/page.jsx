@@ -66,6 +66,9 @@ export default function PresensiPage() {
             if (organisasiFilter) {
                 url += `&organisasi=${organisasiFilter}`;
             }
+            if (statusFilter) {
+                url += `&status=${statusFilter}`;
+            }
 
             const res = await fetch(url);
             const data = await res.json();
