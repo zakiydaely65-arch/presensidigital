@@ -53,9 +53,10 @@ export async function GET(request) {
         } else {
             let query = supabase
                 .from('presensi')
-                .select('*, siswa(*)')
+                .select('*, siswa!inner(*)')
                 .order('tanggal', { ascending: false })
-                .order('waktu', { ascending: false });
+                .order('waktu', { ascending: false })
+                .limit(5000);
 
             // Filter by date range
             if (startDate && endDate) {
