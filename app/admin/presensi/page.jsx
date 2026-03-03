@@ -62,34 +62,43 @@ export default function PresensiPage() {
         setLoading(true);
         try {
             const { startDate, endDate } = getDateRange();
-            let url = `/api/presensi?startDate=${startDate}&endDate=${endDate}`;
+
+            // Base URL: periode + organisasi (tanpa status filter)
+            let baseUrl = `/api/presensi?startDate=${startDate}&endDate=${endDate}`;
             if (organisasiFilter) {
-                url += `&organisasi=${organisasiFilter}`;
-            }
-            if (statusFilter) {
-                url += `&status=${statusFilter}`;
+                baseUrl += `&organisasi=${organisasiFilter}`;
             }
 
-            const res = await fetch(url);
-            const data = await res.json();
+            // Fetch untuk statistik kartu: TANPA filter status agar angka tetap lengkap
+            // Fetch untuk data tabel: WITH filter status jika ada
+            const tableUrl = statusFilter ? `${baseUrl}&status=${statusFilter}` : baseUrl;
 
-            if (data.success) {
-                // Kalkulasikan statistik berdasarkan semua data dari organisasi yang dipilih sebelum menerapkan filter status
+            // Jalankan dua fetch secara paralel jika status filter aktif
+            const [statsRes, tableRes] = await Promise.all([
+                fetch(baseUrl),
+                statusFilter ? fetch(tableUrl) : Promise.resolve(null),
+            ]);
+
+            const statsData = await statsRes.json();
+
+            if (statsData.success) {
+                // Hitung statistik dari data tanpa filter status (selalu lengkap)
                 const newStats = { hadir: 0, hadir_luar_radius: 0, izin: 0, sakit: 0, pulang: 0 };
-                data.data.forEach(p => {
+                statsData.data.forEach(p => {
                     if (newStats[p.status] !== undefined) {
                         newStats[p.status]++;
                     }
                 });
                 setStats(newStats);
+            }
 
-                // Terapkan filter status pada baris Datatable
-                let filteredData = data.data;
-                if (statusFilter) {
-                    filteredData = filteredData.filter(p => p.status === statusFilter);
-                }
-
-                setPresensi(filteredData);
+            if (statusFilter && tableRes) {
+                // Tabel menggunakan data yang sudah difilter status dari backend
+                const tableData = await tableRes.json();
+                setPresensi(tableData.success ? tableData.data : []);
+            } else {
+                // Tidak ada filter status — tabel pakai data yang sama dengan statistik
+                setPresensi(statsData.success ? statsData.data : []);
             }
         } catch (error) {
             console.error('Error fetching presensi:', error);

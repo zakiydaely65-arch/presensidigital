@@ -51,6 +51,33 @@ export async function GET(request) {
             filename = `data_siswa_${organisasi || 'semua'}.xlsx`;
 
         } else {
+            // Two-step organisasi filter: fetch siswa IDs first, then filter presensi
+            // Supabase does NOT reliably support .eq('siswa.col', val) on joined tables
+            let siswaIdFilter = null;
+            if (organisasi) {
+                const { data: siswaRows, error: siswaErr } = await supabase
+                    .from('siswa')
+                    .select('id')
+                    .eq('organisasi', organisasi);
+                if (siswaErr) throw siswaErr;
+                siswaIdFilter = (siswaRows || []).map(s => s.id);
+                if (siswaIdFilter.length === 0) {
+                    // No siswa for this org — export empty sheet
+                    dataToExport = [];
+                    filename = `presensi_${organisasi}_${startDate || 'all'}_${endDate || 'all'}.xlsx`;
+                    const ws = XLSX.utils.json_to_sheet(dataToExport);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+                    const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+                    return new NextResponse(buf, {
+                        headers: {
+                            'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            'Content-Disposition': `attachment; filename="${filename}"`
+                        }
+                    });
+                }
+            }
+
             let query = supabase
                 .from('presensi')
                 .select('*, siswa!inner(*)')
@@ -63,9 +90,9 @@ export async function GET(request) {
                 query = query.gte('tanggal', startDate).lte('tanggal', endDate);
             }
 
-            // Filter by organization natively
-            if (organisasi) {
-                query = query.eq('siswa.organisasi', organisasi);
+            // Filter by organisasi via reliable siswa_id list
+            if (siswaIdFilter !== null) {
+                query = query.in('siswa_id', siswaIdFilter);
             }
 
             // Filter by status (handle derived hadir_luar_radius status)
@@ -82,11 +109,7 @@ export async function GET(request) {
             const { data: presensi, error } = await query;
             if (error) throw error;
 
-            // Filter by organization on the client side if necessary (Supabase join filtering can be limited)
-            let filteredPresensi = presensi;
-            if (organisasi) {
-                filteredPresensi = presensi.filter(p => p.siswa?.organisasi === organisasi);
-            }
+            const filteredPresensi = presensi;
 
             dataToExport = filteredPresensi.map(p => {
                 let jarakStr = '';

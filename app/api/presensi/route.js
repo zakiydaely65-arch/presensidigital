@@ -25,6 +25,23 @@ export async function GET(request) {
         const siswaId = searchParams.get('siswaId');
         const status = searchParams.get('status');
 
+        // If filtering by organisasi (admin only), first fetch the matching siswa IDs.
+        // Supabase does NOT support filtering on joined columns via .eq('siswa.col', val),
+        // so we do a two-step lookup instead.
+        let siswaIdFilter = null;
+        if (user.role !== 'siswa' && organisasi) {
+            const { data: siswaRows, error: siswaErr } = await supabase
+                .from('siswa')
+                .select('id')
+                .eq('organisasi', organisasi);
+            if (siswaErr) throw siswaErr;
+            siswaIdFilter = (siswaRows || []).map(s => s.id);
+            // If no siswa found for this organisation, return empty immediately
+            if (siswaIdFilter.length === 0) {
+                return NextResponse.json({ success: true, data: [] });
+            }
+        }
+
         let query = supabase
             .from('presensi')
             .select('*, siswa!inner(*)')
@@ -46,10 +63,11 @@ export async function GET(request) {
                 query = query.eq('siswa_id', siswaId);
             }
 
-            if (organisasi) {
-                query = query.eq('siswa.organisasi', organisasi);
+            // Apply organisasi filter via siswa_id list (two-step lookup, reliable)
+            if (siswaIdFilter !== null) {
+                query = query.in('siswa_id', siswaIdFilter);
             }
-            
+
             // Filter by status (handle derived hadir_luar_radius status) natively
             if (status && status !== 'semua') {
                 if (status === 'hadir_luar_radius') {
@@ -94,12 +112,8 @@ export async function GET(request) {
             };
         });
 
-        // if the organisasi filter was passed and Supabase didn't filter it correctly at query level,
-        // we'll filter it locally
-        let finalData = enrichedPresensi;
-        if (organisasi) {
-            finalData = enrichedPresensi.filter(p => p.organisasiSiswa === organisasi);
-        }
+        // Organisation filtering is now handled at DB level via siswa_id .in() — no local fallback needed
+        const finalData = enrichedPresensi;
 
         return NextResponse.json({ success: true, data: finalData });
 
