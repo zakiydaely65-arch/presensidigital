@@ -74,6 +74,8 @@ export async function GET(request) {
                     query = query.eq('status', 'hadir').eq('is_at_school', false);
                 } else if (status === 'hadir') {
                     query = query.eq('status', 'hadir').eq('is_at_school', true);
+                } else if (status === 'tidak_hadir') {
+                    query = query.eq('status', 'tidak_hadir');
                 } else {
                     query = query.eq('status', status);
                 }

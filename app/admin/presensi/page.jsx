@@ -16,7 +16,7 @@ export default function PresensiPage() {
     });
     const [organisasiFilter, setOrganisasiFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
-    const [stats, setStats] = useState({ hadir: 0, hadir_luar_radius: 0, izin: 0, sakit: 0, pulang: 0 });
+    const [stats, setStats] = useState({ hadir: 0, hadir_luar_radius: 0, izin: 0, sakit: 0, pulang: 0, tidak_hadir: 0 });
 
     useEffect(() => {
         const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
@@ -63,6 +63,32 @@ export default function PresensiPage() {
         try {
             const { startDate, endDate } = getDateRange();
 
+            // Auto-absent: mark students as "tidak_hadir" for dates up to today
+            // We trigger this for each date in the range that is <= today
+            const todayWIB = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
+            const rangeStart = new Date(startDate + 'T00:00:00');
+            const rangeEnd = new Date(endDate + 'T00:00:00');
+            const autoAbsentDates = [];
+            for (let d = new Date(rangeStart); d <= rangeEnd; d.setDate(d.getDate() + 1)) {
+                const dateStr = d.toISOString().split('T')[0];
+                if (dateStr <= todayWIB) {
+                    autoAbsentDates.push(dateStr);
+                }
+            }
+
+            // Fire auto-absent requests in parallel (fire-and-forget style, but await to ensure data is ready)
+            if (autoAbsentDates.length > 0 && autoAbsentDates.length <= 31) {
+                await Promise.all(
+                    autoAbsentDates.map(date =>
+                        fetch('/api/presensi/auto-absent', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ tanggal: date })
+                        }).catch(err => console.warn('Auto-absent error for', date, err))
+                    )
+                );
+            }
+
             // Base URL: periode + organisasi (tanpa status filter)
             let baseUrl = `/api/presensi?startDate=${startDate}&endDate=${endDate}`;
             if (organisasiFilter) {
@@ -83,7 +109,7 @@ export default function PresensiPage() {
 
             if (statsData.success) {
                 // Hitung statistik dari data tanpa filter status (selalu lengkap)
-                const newStats = { hadir: 0, hadir_luar_radius: 0, izin: 0, sakit: 0, pulang: 0 };
+                const newStats = { hadir: 0, hadir_luar_radius: 0, izin: 0, sakit: 0, pulang: 0, tidak_hadir: 0 };
                 statsData.data.forEach(p => {
                     if (newStats[p.status] !== undefined) {
                         newStats[p.status]++;
@@ -113,7 +139,8 @@ export default function PresensiPage() {
             hadir_luar_radius: 'badge-warning',
             izin: 'badge-warning',
             sakit: 'badge-danger',
-            pulang: 'badge-primary'
+            pulang: 'badge-primary',
+            tidak_hadir: 'badge-danger'
         };
         return badges[status] || 'badge-primary';
     };
@@ -204,6 +231,7 @@ export default function PresensiPage() {
                                 <option value="pulang">Pulang</option>
                                 <option value="izin">Izin</option>
                                 <option value="sakit">Sakit</option>
+                                <option value="tidak_hadir">Tidak Hadir</option>
                             </select>
                         </div>
 
@@ -246,7 +274,7 @@ export default function PresensiPage() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-6">
                 <div className="card p-4 md:p-6 border-l-4 md:border-l-[6px] border-l-emerald-500 rounded-2xl md:rounded-[24px]">
                     <div className="text-2xl md:text-4xl font-extrabold text-primary tracking-tight">{stats.hadir}</div>
                     <div className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1.5 md:mt-2">Data Hadir</div>
@@ -266,6 +294,10 @@ export default function PresensiPage() {
                 <div className="card p-4 md:p-6 border-l-4 md:border-l-[6px] border-l-accent rounded-2xl md:rounded-[24px]">
                     <div className="text-2xl md:text-4xl font-extrabold text-primary tracking-tight">{stats.pulang}</div>
                     <div className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1.5 md:mt-2">Data Pulang</div>
+                </div>
+                <div className="card p-4 md:p-6 border-l-4 md:border-l-[6px] border-l-red-600 rounded-2xl md:rounded-[24px]">
+                    <div className="text-2xl md:text-4xl font-extrabold text-primary tracking-tight">{stats.tidak_hadir}</div>
+                    <div className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1.5 md:mt-2">Tidak Hadir</div>
                 </div>
             </div>
 
@@ -315,7 +347,7 @@ export default function PresensiPage() {
                                             </td>
                                             <td className="px-6 py-5">
                                                 <span className={`badge ${getStatusBadge(p.status)}`}>
-                                                    {p.status === 'hadir_luar_radius' ? 'Hadir (Luar Radius)' : p.status}
+                                                    {p.status === 'hadir_luar_radius' ? 'Hadir (Luar Radius)' : p.status === 'tidak_hadir' ? 'Tidak Hadir' : p.status}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-5">
@@ -359,7 +391,7 @@ export default function PresensiPage() {
                                                 </div>
                                             </div>
                                             <span className={`badge ${getStatusBadge(p.status)} shrink-0`}>
-                                                {p.status === 'hadir_luar_radius' ? 'Hadir (Luar Radius)' : p.status}
+                                                {p.status === 'hadir_luar_radius' ? 'Hadir (Luar Radius)' : p.status === 'tidak_hadir' ? 'Tidak Hadir' : p.status}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium">
