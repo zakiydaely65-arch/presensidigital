@@ -58,13 +58,47 @@ export default function PresensiPage() {
         return { startDate, endDate };
     };
 
+    // Group raw presensi records by siswa_id + tanggal
+    const groupPresensi = (data) => {
+        const map = new Map();
+
+        data.forEach(p => {
+            const key = `${p.siswa_id || p.siswaId}_${p.tanggal}`;
+            if (!map.has(key)) {
+                map.set(key, {
+                    key,
+                    tanggal: p.tanggal,
+                    siswa_id: p.siswa_id || p.siswaId,
+                    namaSiswa: p.namaSiswa || 'Unknown',
+                    kelasSiswa: p.kelasSiswa || 'Unknown',
+                    organisasiSiswa: p.organisasiSiswa || 'Unknown',
+                    entries: []
+                });
+            }
+            map.get(key).entries.push({
+                status: p.status,
+                waktu: p.waktu,
+                isAtSchool: p.isAtSchool ?? p.is_at_school,
+                jarak: p.jarak,
+                latitude: p.latitude,
+                longitude: p.longitude
+            });
+        });
+
+        // Sort entries within each group by waktu ascending
+        map.forEach(group => {
+            group.entries.sort((a, b) => (a.waktu || '').localeCompare(b.waktu || ''));
+        });
+
+        return Array.from(map.values());
+    };
+
     const fetchPresensi = async () => {
         setLoading(true);
         try {
             const { startDate, endDate } = getDateRange();
 
             // Auto-absent: mark students as "tidak_hadir" for dates up to today
-            // We trigger this for each date in the range that is <= today
             const todayWIB = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
             const rangeStart = new Date(startDate + 'T00:00:00');
             const rangeEnd = new Date(endDate + 'T00:00:00');
@@ -76,7 +110,6 @@ export default function PresensiPage() {
                 }
             }
 
-            // Fire auto-absent requests in parallel (fire-and-forget style, but await to ensure data is ready)
             if (autoAbsentDates.length > 0 && autoAbsentDates.length <= 31) {
                 await Promise.all(
                     autoAbsentDates.map(date =>
@@ -95,11 +128,8 @@ export default function PresensiPage() {
                 baseUrl += `&organisasi=${organisasiFilter}`;
             }
 
-            // Fetch untuk statistik kartu: TANPA filter status agar angka tetap lengkap
-            // Fetch untuk data tabel: WITH filter status jika ada
             const tableUrl = statusFilter ? `${baseUrl}&status=${statusFilter}` : baseUrl;
 
-            // Jalankan dua fetch secara paralel jika status filter aktif
             const [statsRes, tableRes] = await Promise.all([
                 fetch(baseUrl),
                 statusFilter ? fetch(tableUrl) : Promise.resolve(null),
@@ -108,7 +138,6 @@ export default function PresensiPage() {
             const statsData = await statsRes.json();
 
             if (statsData.success) {
-                // Hitung statistik dari data tanpa filter status (selalu lengkap)
                 const newStats = { hadir: 0, hadir_luar_radius: 0, izin: 0, sakit: 0, pulang: 0, tidak_hadir: 0 };
                 statsData.data.forEach(p => {
                     if (newStats[p.status] !== undefined) {
@@ -119,11 +148,9 @@ export default function PresensiPage() {
             }
 
             if (statusFilter && tableRes) {
-                // Tabel menggunakan data yang sudah difilter status dari backend
                 const tableData = await tableRes.json();
                 setPresensi(tableData.success ? tableData.data : []);
             } else {
-                // Tidak ada filter status — tabel pakai data yang sama dengan statistik
                 setPresensi(statsData.success ? statsData.data : []);
             }
         } catch (error) {
@@ -145,6 +172,18 @@ export default function PresensiPage() {
         return badges[status] || 'badge-primary';
     };
 
+    const getStatusLabel = (status) => {
+        const labels = {
+            hadir: 'Hadir',
+            hadir_luar_radius: 'Hadir (Luar Radius)',
+            izin: 'Izin',
+            sakit: 'Sakit',
+            pulang: 'Pulang',
+            tidak_hadir: 'Tidak Hadir'
+        };
+        return labels[status] || status;
+    };
+
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('id-ID', {
             weekday: 'short',
@@ -161,6 +200,9 @@ export default function PresensiPage() {
         if (statusFilter) url += `&status=${statusFilter}`;
         return url;
     };
+
+    // Group the presensi data for display
+    const groupedPresensi = groupPresensi(presensi);
 
     return (
         <div className="max-w-7xl mx-auto space-y-5 md:space-y-8 animate-fadeIn">
@@ -314,18 +356,17 @@ export default function PresensiPage() {
                                 <tr>
                                     <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest w-16 text-center">No</th>
                                     <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Tanggal</th>
-                                    <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Pukul</th>
                                     <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Personil</th>
                                     <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Kelas</th>
                                     <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Afiliasi</th>
-                                    <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Status</th>
+                                    <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Status & Waktu</th>
                                     <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">GPS</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
-                                {presensi.length === 0 ? (
+                                {groupedPresensi.length === 0 ? (
                                     <tr>
-                                        <td colSpan="8" className="px-8 py-16 text-center text-slate-400">
+                                        <td colSpan="7" className="px-8 py-16 text-center text-slate-400">
                                             <div className="flex justify-center mb-3">
                                                 <svg className="w-10 h-10 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                             </div>
@@ -333,31 +374,51 @@ export default function PresensiPage() {
                                         </td>
                                     </tr>
                                 ) : (
-                                    presensi.map((p, idx) => (
-                                        <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
+                                    groupedPresensi.map((group, idx) => (
+                                        <tr key={group.key} className="hover:bg-slate-50/50 transition-colors">
                                             <td className="px-6 py-5 font-bold text-slate-400 text-center text-xs">{idx + 1}</td>
-                                            <td className="px-6 py-5 font-bold text-slate-500 text-xs tracking-wide">{formatDate(p.tanggal)}</td>
-                                            <td className="px-6 py-5 font-mono font-bold text-primary tracking-wider">{p.waktu}</td>
-                                            <td className="px-6 py-5 font-bold text-primary">{p.namaSiswa}</td>
-                                            <td className="px-6 py-5 text-slate-500 font-medium">{p.kelasSiswa}</td>
+                                            <td className="px-6 py-5 font-bold text-slate-500 text-xs tracking-wide">{formatDate(group.tanggal)}</td>
+                                            <td className="px-6 py-5 font-bold text-primary">{group.namaSiswa}</td>
+                                            <td className="px-6 py-5 text-slate-500 font-medium">{group.kelasSiswa}</td>
                                             <td className="px-6 py-5">
-                                                <span className={`badge ${p.organisasiSiswa === 'OSIS' ? 'badge-primary' : 'badge-accent'}`}>
-                                                    {p.organisasiSiswa}
+                                                <span className={`badge ${group.organisasiSiswa === 'OSIS' ? 'badge-primary' : 'badge-accent'}`}>
+                                                    {group.organisasiSiswa}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-5">
-                                                <span className={`badge ${getStatusBadge(p.status)}`}>
-                                                    {p.status === 'hadir_luar_radius' ? 'Hadir (Luar Radius)' : p.status === 'tidak_hadir' ? 'Tidak Hadir' : p.status}
-                                                </span>
+                                                <div className="flex flex-col gap-1.5">
+                                                    {group.entries.map((entry, i) => (
+                                                        <div key={i} className="flex items-center gap-2">
+                                                            <span className={`badge ${getStatusBadge(entry.status)}`}>
+                                                                {getStatusLabel(entry.status)}
+                                                            </span>
+                                                            {entry.status !== 'tidak_hadir' && (
+                                                                <span className="font-mono font-bold text-primary text-xs tracking-wider">
+                                                                    {entry.waktu}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             </td>
                                             <td className="px-6 py-5">
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
-                                                    {p.isAtSchool ? (
-                                                        <><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> ON-SITE</>
-                                                    ) : (
-                                                        <><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> OFF-SITE {p.jarak ? `(${Math.round(p.jarak)}m)` : ''}</>
-                                                    )}
-                                                </span>
+                                                <div className="flex flex-col gap-1">
+                                                    {group.entries.map((entry, i) => (
+                                                        entry.status !== 'tidak_hadir' ? (
+                                                            <span key={i} className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
+                                                                {entry.isAtSchool ? (
+                                                                    <><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> ON-SITE</>
+                                                                ) : (
+                                                                    <><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> OFF-SITE {entry.jarak ? `(${Math.round(entry.jarak)}m)` : ''}</>
+                                                                )}
+                                                            </span>
+                                                        ) : (
+                                                            <span key={i} className="text-[10px] font-black uppercase tracking-widest text-slate-300">
+                                                                &mdash;
+                                                            </span>
+                                                        )
+                                                    ))}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))
@@ -368,7 +429,7 @@ export default function PresensiPage() {
 
                     {/* Mobile Card List */}
                     <div className="md:hidden">
-                        {presensi.length === 0 ? (
+                        {groupedPresensi.length === 0 ? (
                             <div className="px-4 py-12 text-center text-slate-400">
                                 <div className="flex justify-center mb-3">
                                     <svg className="w-10 h-10 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
@@ -377,32 +438,39 @@ export default function PresensiPage() {
                             </div>
                         ) : (
                             <div className="divide-y divide-slate-100">
-                                {presensi.map((p, idx) => (
-                                    <div key={p.id} className="p-4 space-y-2">
+                                {groupedPresensi.map((group) => (
+                                    <div key={group.key} className="p-4 space-y-2.5">
                                         <div className="flex items-start justify-between gap-2">
                                             <div className="min-w-0">
-                                                <p className="font-bold text-primary text-sm truncate">{p.namaSiswa}</p>
+                                                <p className="font-bold text-primary text-sm truncate">{group.namaSiswa}</p>
                                                 <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                                                    <span className="text-xs text-slate-400">{p.kelasSiswa}</span>
-                                                    <span className="text-slate-300">•</span>
-                                                    <span className={`badge text-[9px] px-2 py-0.5 ${p.organisasiSiswa === 'OSIS' ? 'badge-primary' : 'badge-accent'}`}>
-                                                        {p.organisasiSiswa}
+                                                    <span className="text-xs text-slate-400">{group.kelasSiswa}</span>
+                                                    <span className="text-slate-300">&bull;</span>
+                                                    <span className={`badge text-[9px] px-2 py-0.5 ${group.organisasiSiswa === 'OSIS' ? 'badge-primary' : 'badge-accent'}`}>
+                                                        {group.organisasiSiswa}
                                                     </span>
                                                 </div>
                                             </div>
-                                            <span className={`badge ${getStatusBadge(p.status)} shrink-0`}>
-                                                {p.status === 'hadir_luar_radius' ? 'Hadir (Luar Radius)' : p.status === 'tidak_hadir' ? 'Tidak Hadir' : p.status}
-                                            </span>
+                                            <span className="text-[10px] text-slate-400 font-medium shrink-0">{formatDate(group.tanggal)}</span>
                                         </div>
-                                        <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium">
-                                            <span className="font-mono font-bold text-primary">{p.waktu}</span>
-                                            <span className="text-slate-300">•</span>
-                                            <span>{formatDate(p.tanggal)}</span>
-                                            <span className="text-slate-300">•</span>
-                                            <span className="flex items-center gap-1">
-                                                <span className={`w-1.5 h-1.5 rounded-full ${p.isAtSchool ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
-                                                {p.isAtSchool ? 'ON-SITE' : `OFF-SITE ${p.jarak ? `(${Math.round(p.jarak)}m)` : ''}`}
-                                            </span>
+                                        <div className="flex flex-col gap-1.5">
+                                            {group.entries.map((entry, i) => (
+                                                <div key={i} className="flex items-center gap-2 text-[10px]">
+                                                    <span className={`badge ${getStatusBadge(entry.status)}`}>
+                                                        {getStatusLabel(entry.status)}
+                                                    </span>
+                                                    {entry.status !== 'tidak_hadir' && (
+                                                        <>
+                                                            <span className="font-mono font-bold text-primary">{entry.waktu}</span>
+                                                            <span className="text-slate-300">&bull;</span>
+                                                            <span className="flex items-center gap-1 text-slate-400 font-medium">
+                                                                <span className={`w-1.5 h-1.5 rounded-full ${entry.isAtSchool ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
+                                                                {entry.isAtSchool ? 'ON-SITE' : `OFF-SITE ${entry.jarak ? `(${Math.round(entry.jarak)}m)` : ''}`}
+                                                            </span>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
                                 ))}
