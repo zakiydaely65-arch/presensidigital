@@ -223,6 +223,9 @@ export default function SiswaPage() {
     return todayPresensi.some(p => p.status === status);
   };
 
+  // True jika sudah ada record izin atau sakit hari ini
+  const alreadyTidakHadir = hasStatus('izin') || hasStatus('sakit');
+
   if (loading) {
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center gap-6 text-slate-400">
@@ -384,12 +387,12 @@ export default function SiswaPage() {
                     {(hasStatus('hadir_luar_radius') || hasStatus('hadir')) && <span className="absolute top-4 right-4 text-[10px] font-black tracking-widest uppercase bg-slate-100 text-slate-500 px-3 py-1.5 rounded-lg border border-slate-200">Logged</span>}
                   </button>
                   <button
-                    className={`relative flex items-center justify-between p-6 rounded-2xl border-2 transition-all duration-300 ${hasStatus('izin')
+                    className={`relative flex items-center justify-between p-6 rounded-2xl border-2 transition-all duration-300 ${alreadyTidakHadir
                       ? 'bg-slate-50 border-slate-200 opacity-60 cursor-not-allowed'
                       : 'bg-white border-slate-200 hover:border-accent hover:shadow-lg focus:ring-4 focus:ring-accent/20'
                       }`}
                     onClick={() => handlePresensi('izin')}
-                    disabled={submitting || hasStatus('izin') || isAtSchool === null}
+                    disabled={submitting || alreadyTidakHadir || isAtSchool === null}
                   >
                     <div className="flex items-center gap-5">
                       <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-accent shrink-0">
@@ -400,15 +403,15 @@ export default function SiswaPage() {
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Kepentingan</span>
                       </div>
                     </div>
-                    {hasStatus('izin') && <span className="absolute top-4 right-4 text-[10px] font-black tracking-widest uppercase bg-slate-100 text-slate-500 px-3 py-1.5 rounded-lg border border-slate-200">Logged</span>}
+                    {alreadyTidakHadir && <span className="absolute top-4 right-4 text-[10px] font-black tracking-widest uppercase bg-slate-100 text-slate-500 px-3 py-1.5 rounded-lg border border-slate-200">Logged</span>}
                   </button>
                   <button
-                    className={`relative flex items-center justify-between p-6 rounded-2xl border-2 transition-all duration-300 ${hasStatus('sakit')
+                    className={`relative flex items-center justify-between p-6 rounded-2xl border-2 transition-all duration-300 ${alreadyTidakHadir
                       ? 'bg-slate-50 border-slate-200 opacity-60 cursor-not-allowed'
                       : 'bg-white border-slate-200 hover:border-rose-500 hover:shadow-lg focus:ring-4 focus:ring-rose-500/20'
                       }`}
                     onClick={() => handlePresensi('sakit')}
-                    disabled={submitting || hasStatus('sakit') || isAtSchool === null}
+                    disabled={submitting || alreadyTidakHadir || isAtSchool === null}
                   >
                     <div className="flex items-center gap-5">
                       <div className="w-12 h-12 rounded-full bg-rose-50 flex items-center justify-center text-rose-500 shrink-0">
@@ -419,7 +422,7 @@ export default function SiswaPage() {
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Medis</span>
                       </div>
                     </div>
-                    {hasStatus('sakit') && <span className="absolute top-4 right-4 text-[10px] font-black tracking-widest uppercase bg-slate-100 text-slate-500 px-3 py-1.5 rounded-lg border border-slate-200">Logged</span>}
+                    {alreadyTidakHadir && <span className="absolute top-4 right-4 text-[10px] font-black tracking-widest uppercase bg-slate-100 text-slate-500 px-3 py-1.5 rounded-lg border border-slate-200">Logged</span>}
                   </button>
                 </>
               )}

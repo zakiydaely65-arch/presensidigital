@@ -186,22 +186,55 @@ export async function POST(request) {
         // Map 'hadir_luar_radius' to 'hadir' for database insertion to pass ENUM constraints
         const supabaseStatus = status === ATTENDANCE_STATUS.HADIR_LUAR_RADIUS ? ATTENDANCE_STATUS.HADIR : status;
 
-        const { data: existing, error: checkError } = await supabase
+        // Fetch ALL presensi records for this student today
+        const { data: todayRecords, error: checkError } = await supabase
             .from('presensi')
-            .select('id')
+            .select('id, status')
             .eq('siswa_id', user.id)
-            .eq('tanggal', wibDate)
-            .eq('status', supabaseStatus)
-            .maybeSingle();
+            .eq('tanggal', wibDate);
 
         if (checkError) throw checkError;
 
-        if (existing) {
-            const statusName = status === 'hadir_luar_radius' ? 'Hadir Off-Site' : status;
-            return NextResponse.json(
-                { error: `Anda sudah melakukan presensi dengan status "${statusName}" hari ini` },
-                { status: 400 }
-            );
+        // Category-based duplicate prevention:
+        // - hadir / hadir_luar_radius → only 1 per day (same category)
+        // - izin / sakit              → only 1 per day (both are "tidak hadir", cannot submit both)
+        // - pulang                    → only 1 per day
+        const hadirStatuses = ['hadir']; // hadir_luar_radius is stored as 'hadir' with is_at_school=false
+        const tidakHadirStatuses = ['izin', 'sakit'];
+
+        if (todayRecords && todayRecords.length > 0) {
+            // Trying to submit hadir or hadir_luar_radius
+            if (supabaseStatus === 'hadir') {
+                const alreadyHadir = todayRecords.some(r => r.status === 'hadir');
+                if (alreadyHadir) {
+                    return NextResponse.json(
+                        { error: 'Anda sudah melakukan presensi hadir hari ini' },
+                        { status: 400 }
+                    );
+                }
+            }
+
+            // Trying to submit izin or sakit
+            if (tidakHadirStatuses.includes(supabaseStatus)) {
+                const alreadyTidakHadir = todayRecords.some(r => tidakHadirStatuses.includes(r.status));
+                if (alreadyTidakHadir) {
+                    return NextResponse.json(
+                        { error: 'Anda sudah melakukan presensi tidak hadir (izin/sakit) hari ini' },
+                        { status: 400 }
+                    );
+                }
+            }
+
+            // Trying to submit pulang
+            if (supabaseStatus === 'pulang') {
+                const alreadyPulang = todayRecords.some(r => r.status === 'pulang');
+                if (alreadyPulang) {
+                    return NextResponse.json(
+                        { error: 'Anda sudah melakukan presensi pulang hari ini' },
+                        { status: 400 }
+                    );
+                }
+            }
         }
 
         const { data: newPresensi, error: insertError } = await supabase
