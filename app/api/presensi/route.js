@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { getUserFromRequest } from '@/lib/auth';
 import { isWithinSchool, getDistanceFromSchool } from '@/lib/geolocation';
-import { ATTENDANCE_STATUS } from '@/lib/constants';
+import { ATTENDANCE_STATUS, HADIR_CUTOFF_HOUR } from '@/lib/constants';
 
 export const dynamic = 'force-dynamic';
 
@@ -74,6 +74,8 @@ export async function GET(request) {
                     query = query.eq('status', 'hadir').eq('is_at_school', false);
                 } else if (status === 'hadir') {
                     query = query.eq('status', 'hadir').eq('is_at_school', true);
+                } else if (status === 'tidak_hadir') {
+                    query = query.eq('status', 'tidak_hadir');
                 } else {
                     query = query.eq('status', status);
                 }
@@ -183,8 +185,37 @@ export async function POST(request) {
         const wibDate = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }); // YYYY-MM-DD format
         const wibTime = now.toLocaleTimeString('en-GB', { timeZone: 'Asia/Jakarta', hour12: false }); // HH:MM:SS format
 
+        // Check cutoff time: hadir can only be submitted before HADIR_CUTOFF_HOUR (09:00 WIB)
+        const currentHour = parseInt(wibTime.split(':')[0], 10);
+        if ((status === ATTENDANCE_STATUS.HADIR || status === ATTENDANCE_STATUS.HADIR_LUAR_RADIUS) && currentHour >= HADIR_CUTOFF_HOUR) {
+            return NextResponse.json(
+                { error: `Batas waktu presensi Hadir adalah pukul ${String(HADIR_CUTOFF_HOUR).padStart(2, '0')}:00 WIB. Anda sudah melewati batas waktu.` },
+                { status: 400 }
+            );
+        }
+
         // Map 'hadir_luar_radius' to 'hadir' for database insertion to pass ENUM constraints
         const supabaseStatus = status === ATTENDANCE_STATUS.HADIR_LUAR_RADIUS ? ATTENDANCE_STATUS.HADIR : status;
+
+        // Validate: "pulang" can only be submitted if student already has "hadir" record today
+        if (status === ATTENDANCE_STATUS.PULANG) {
+            const { data: hadirRecord, error: hadirCheckError } = await supabase
+                .from('presensi')
+                .select('id')
+                .eq('siswa_id', user.id)
+                .eq('tanggal', wibDate)
+                .eq('status', 'hadir')
+                .maybeSingle();
+
+            if (hadirCheckError) throw hadirCheckError;
+
+            if (!hadirRecord) {
+                return NextResponse.json(
+                    { error: 'Anda harus melakukan presensi Hadir terlebih dahulu sebelum bisa Pulang.' },
+                    { status: 400 }
+                );
+            }
+        }
 
         // Fetch ALL presensi records for this student today
         const { data: todayRecords, error: checkError } = await supabase
@@ -199,7 +230,6 @@ export async function POST(request) {
         // - hadir / hadir_luar_radius → only 1 per day (same category)
         // - izin / sakit              → only 1 per day (both are "tidak hadir", cannot submit both)
         // - pulang                    → only 1 per day
-        const hadirStatuses = ['hadir']; // hadir_luar_radius is stored as 'hadir' with is_at_school=false
         const tidakHadirStatuses = ['izin', 'sakit'];
 
         if (todayRecords && todayRecords.length > 0) {

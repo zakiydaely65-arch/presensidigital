@@ -101,6 +101,8 @@ export async function GET(request) {
                     query = query.eq('status', 'hadir').eq('is_at_school', false);
                 } else if (status === 'hadir') {
                     query = query.eq('status', 'hadir').eq('is_at_school', true);
+                } else if (status === 'tidak_hadir') {
+                    query = query.eq('status', 'tidak_hadir');
                 } else {
                     query = query.eq('status', status);
                 }
@@ -121,10 +123,12 @@ export async function GET(request) {
                     console.error('Export jarak calc error:', err);
                 }
 
-                // Derive display status: hadir + off-site = HADIR (LUAR RADIUS)
+                // Derive display status
                 let displayStatus = p.status.toUpperCase();
                 if (p.status === 'hadir' && !p.is_at_school) {
                     displayStatus = 'HADIR (LUAR RADIUS)';
+                } else if (p.status === 'tidak_hadir') {
+                    displayStatus = 'TIDAK HADIR';
                 }
 
                 return {
