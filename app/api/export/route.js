@@ -4,6 +4,33 @@ import { supabase } from '@/lib/supabase';
 import { getUserFromRequest } from '@/lib/auth';
 import { getDistanceFromSchool } from '@/lib/geolocation';
 
+/**
+ * Mengurai string kelas menjadi nilai numerik untuk sorting yang benar.
+ * Contoh: "X-1" -> { grade: 10, num: 1 }, "XI-2" -> { grade: 11, num: 2 }
+ */
+function parseKelas(kelasStr = '') {
+    const upper = kelasStr.toUpperCase().trim();
+    let grade = 99;
+    let rest = upper;
+
+    if (upper.startsWith('XII')) { grade = 12; rest = upper.slice(3); }
+    else if (upper.startsWith('XI')) { grade = 11; rest = upper.slice(2); }
+    else if (upper.startsWith('X'))  { grade = 10; rest = upper.slice(1); }
+
+    // Ambil angka setelah pemisah (misal "-1", " 1", "1")
+    const numMatch = rest.match(/\d+/);
+    const num = numMatch ? parseInt(numMatch[0], 10) : 0;
+
+    return { grade, num };
+}
+
+function sortByKelas(a, b) {
+    const ka = parseKelas(a.kelas || a['Kelas'] || '');
+    const kb = parseKelas(b.kelas || b['Kelas'] || '');
+    if (ka.grade !== kb.grade) return ka.grade - kb.grade;
+    return ka.num - kb.num;
+}
+
 // GET - Export data to Excel
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -40,7 +67,14 @@ export async function GET(request) {
             const { data: siswaList, error } = await query;
             if (error) throw error;
 
-            dataToExport = siswaList.map(s => ({
+            // Urutkan berdasarkan kelas (X-1, X-2, ..., XI-1, ..., XII-n) lalu nama
+            const sortedSiswa = [...siswaList].sort((a, b) => {
+                const kComp = sortByKelas(a, b);
+                if (kComp !== 0) return kComp;
+                return (a.nama || '').localeCompare(b.nama || '', 'id');
+            });
+
+            dataToExport = sortedSiswa.map(s => ({
                 'Nama Lengkap': s.nama,
                 'Kelas': s.kelas,
                 'Organisasi': s.organisasi,
@@ -111,9 +145,20 @@ export async function GET(request) {
             const { data: presensi, error } = await query;
             if (error) throw error;
 
-            const filteredPresensi = presensi;
+            // Urutkan presensi: kelas dulu (X-1, XI-1, dst), lalu nama, lalu tanggal terbaru
+            const sortedPresensi = [...presensi].sort((a, b) => {
+                const ka = { kelas: a.siswa?.kelas };
+                const kb = { kelas: b.siswa?.kelas };
+                const kComp = sortByKelas(ka, kb);
+                if (kComp !== 0) return kComp;
+                const namaComp = (a.siswa?.nama || '').localeCompare(b.siswa?.nama || '', 'id');
+                if (namaComp !== 0) return namaComp;
+                // Terbaru duluan dalam kelompok siswa yang sama
+                if (a.tanggal !== b.tanggal) return b.tanggal.localeCompare(a.tanggal);
+                return (b.waktu || '').localeCompare(a.waktu || '');
+            });
 
-            dataToExport = filteredPresensi.map(p => {
+            dataToExport = sortedPresensi.map(p => {
                 let jarakStr = '';
                 try {
                     if (!p.is_at_school && p.latitude != null && p.longitude != null && p.latitude !== '' && p.longitude !== '') {
