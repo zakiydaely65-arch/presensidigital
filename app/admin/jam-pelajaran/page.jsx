@@ -435,7 +435,7 @@ export default function JamPelajaranPage() {
                                         <tr key={r.id} className="hover:bg-[#FFE600]/20">
                                             <td className="px-6 py-4 font-black text-center">{idx + 1}</td>
                                             <td className="px-6 py-4 font-bold">{r.nama}</td>
-                                            <td className="px-6 py-4">{r.kelas}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap">{r.kelas}</td>
                                             <td className="px-6 py-4">
                                                 <span className={`badge ${r.organisasi === 'OSIS' ? 'badge-primary' : 'badge-accent'}`}>
                                                     {r.organisasi}
@@ -504,7 +504,7 @@ export default function JamPelajaranPage() {
                                                     <div className="font-bold text-sm cursor-pointer hover:text-primary transition-colors" onClick={() => toggleAllRow(s.id)}>
                                                         {s.nama}
                                                     </div>
-                                                    <div className="text-[10px] text-slate-400 font-bold mt-1">{s.kelas} • {s.organisasi}</div>
+                                                    <div className="text-[10px] text-slate-400 font-bold mt-1 whitespace-nowrap">{s.kelas} • {s.organisasi}</div>
                                                 </td>
                                                 {inputJadwal.map(j => (
                                                     <td key={j.jp_ke} className="px-2 py-3 border-r-2 border-black text-center align-middle hover:bg-slate-100 cursor-pointer" onClick={() => toggleJp(s.id, j.jp_ke)}>
