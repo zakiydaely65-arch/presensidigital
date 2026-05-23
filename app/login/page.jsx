@@ -41,34 +41,83 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex text-primary bg-surface-muted bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] selection:bg-accent selection:text-white">
-      {/* Left Banner */}
-      <div className="hidden lg:flex flex-col justify-between w-1/2 bg-primary text-white p-12 relative overflow-hidden">
-        <div className="relative z-10">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-white/10 backdrop-blur-md mb-8 border border-white/20">
-            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-          </div>
-          <h1 className="text-4xl font-extrabold tracking-tight mb-4 leading-tight">Sistem Presensi Digital<br /><span className="text-accent-light">OSIS & MPK</span></h1>
-          <p className="text-slate-400 text-lg max-w-md font-medium">Platform modern untuk pencatatan kehadiran yang akurat, cepat, dan profesional.</p>
+    <div className="min-h-screen flex font-sans bg-[#FFE600]">
+      {/* Marquee ticker tape */}
+      <div className="fixed top-0 left-0 right-0 z-[100] bg-black text-[#FFE600] overflow-hidden h-8 flex items-center border-b-2 border-black">
+        <div className="flex whitespace-nowrap animate-marquee">
+          {Array(6).fill('★ PRESENSI DIGITAL ★ OSIS & MPK ★ SISTEM ABSENSI MODERN ★ LOGIN UNTUK AKSES ★ ').map((t, i) => (
+            <span key={i} className="text-xs font-bold tracking-[0.3em] uppercase pr-8">{t}</span>
+          ))}
         </div>
-
-        <div className="relative z-10">
-          <p className="text-slate-500 font-medium text-sm">© {(new Date()).getFullYear()} OSIS & MPK. All rights reserved.</p>
-        </div>
-
-        {/* Abstract Shapes */}
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-accent rounded-full opacity-20 blur-3xl mix-blend-screen pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-accent-light rounded-full opacity-10 blur-3xl mix-blend-screen pointer-events-none"></div>
       </div>
 
-      {/* Right Login Form */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-12 relative z-10">
-        <div className="w-full max-w-md bg-white p-8 sm:p-10 rounded-[2rem] shadow-premium border border-slate-100">
-          <div className="mb-10 text-center lg:text-left">
-            <h2 className="text-2xl font-bold tracking-tight mb-2">Selamat Datang 👋</h2>
-            <p className="text-slate-500 font-medium text-sm">Silakan masuk dengan kredensial Anda.</p>
+      {/* Left — Giant Brand Panel */}
+      <div className="hidden lg:flex flex-col justify-between w-1/2 bg-black text-white p-12 relative overflow-hidden pt-16">
+        {/* Big decorative number */}
+        <div className="absolute -right-8 top-1/2 -translate-y-1/2 text-[22rem] font-black text-white/5 select-none leading-none font-mono">
+          01
+        </div>
+
+        {/* Pink accent block */}
+        <div className="absolute top-16 right-0 w-2 h-40 bg-[#FF90E8]" />
+        <div className="absolute bottom-32 left-12 w-20 h-2 bg-[#FFE600]" />
+
+        <div className="relative z-10 mt-8">
+          {/* Logo */}
+          <div className="inline-flex items-center gap-4 mb-12">
+            <div className="w-14 h-14 bg-[#FFE600] border-2 border-white flex items-center justify-center shadow-[4px_4px_0px_0px_#FF90E8]">
+              <svg className="w-8 h-8 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth={2.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+            <div>
+              <div className="text-xs font-bold tracking-[0.4em] text-white/50 uppercase mb-1">Sistem</div>
+              <div className="text-2xl font-black tracking-tight">PRESENSI<span className="text-[#FF90E8]">.</span></div>
+            </div>
+          </div>
+
+          <h1 className="text-6xl font-black leading-[1.0] tracking-tight mb-8">
+            MASUK<br/>
+            <span className="text-[#FFE600]">KE</span><br/>
+            SISTEM
+          </h1>
+
+          <p className="text-white/60 text-lg max-w-sm font-medium leading-relaxed">
+            Platform presensi digital generasi baru untuk OSIS & MPK. Terverifikasi geolokasi real-time.
+          </p>
+        </div>
+
+        {/* Stats row */}
+        <div className="relative z-10 grid grid-cols-3 gap-4">
+          {[
+            { val: '100%', label: 'Digital' },
+            { val: '<2s', label: 'Respons' },
+            { val: 'GPS', label: 'Verified' },
+          ].map((s) => (
+            <div key={s.label} className="border-2 border-white/20 p-4">
+              <div className="text-2xl font-black text-[#FFE600] font-mono">{s.val}</div>
+              <div className="text-xs font-bold text-white/40 uppercase tracking-widest mt-1">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Right — Login Form */}
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-12 relative pt-16">
+        {/* Decorative squares */}
+        <div className="absolute top-20 right-8 w-16 h-16 bg-[#FF90E8] border-2 border-black shadow-[4px_4px_0px_0px_#000] hidden lg:block" />
+        <div className="absolute bottom-16 left-8 w-10 h-10 bg-black hidden lg:block" />
+
+        <div className="w-full max-w-md">
+          {/* Form header */}
+          <div className="mb-10">
+            <div className="inline-block bg-black text-[#FFE600] text-xs font-black px-4 py-2 tracking-[0.3em] uppercase mb-6 shadow-[4px_4px_0px_0px_#FF90E8]">
+              PORTAL AUTENTIKASI
+            </div>
+            <h2 className="text-4xl font-black text-black tracking-tight leading-tight">
+              SELAMAT<br/>DATANG 👋
+            </h2>
+            <p className="text-black/60 font-bold mt-3">Masuk dengan kredensial Anda untuk melanjutkan.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -87,7 +136,7 @@ export default function LoginPage() {
                 id="kode"
                 type="text"
                 className="input"
-                placeholder="Misal: OSIS001"
+                placeholder="Contoh: OSIS001"
                 value={kode}
                 onChange={(e) => setKode(e.target.value)}
                 required
@@ -112,24 +161,32 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn btn-primary py-3.5 mt-4 text-base"
+              id="login-submit"
+              className="w-full btn btn-primary py-4 text-base mt-2"
             >
               {loading ? (
                 <>
-                  <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Memproses...
+                  MEMPROSES...
                 </>
               ) : (
-                'Masuk ke Akun'
+                <>
+                  MASUK KE SISTEM
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="square" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </>
               )}
             </button>
           </form>
 
-          <div className="mt-8 text-center lg:text-left">
-            <p className="text-xs text-slate-400 font-medium">Mengalami kendala? Silakan hubungi admin sistem.</p>
+          <div className="mt-8 p-4 border-2 border-black bg-white shadow-[4px_4px_0px_0px_#000]">
+            <p className="text-xs font-bold text-black/60 uppercase tracking-widest">
+              ⚠ Mengalami kendala? Hubungi admin sistem Anda.
+            </p>
           </div>
         </div>
       </div>

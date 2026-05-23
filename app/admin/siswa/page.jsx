@@ -176,7 +176,7 @@ export default function SiswaPage() {
     if (loading) {
         return (
             <div className="min-h-[70vh] flex flex-col items-center justify-center gap-6 text-slate-400">
-                <div className="w-10 h-10 border-[3px] border-slate-200 border-t-primary rounded-full animate-spin"></div>
+                <div className="w-10 h-10 border-[3px] border-black border-t-primary rounded-full animate-spin"></div>
                 <p className="font-bold uppercase tracking-widest text-xs">Menyiapkan Direktori Data...</p>
             </div>
         );
@@ -185,10 +185,10 @@ export default function SiswaPage() {
     return (
         <>
         <div className="max-w-7xl mx-auto space-y-6 md:space-y-8 animate-fadeIn">
-            <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 pb-4 md:pb-6 border-b border-slate-200">
+            <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 pb-4 md:pb-6 border-b border-black">
                 <div>
-                    <h1 className="text-2xl md:text-4xl font-extrabold text-primary tracking-tight">Direktori Siswa</h1>
-                    <p className="text-slate-500 font-medium mt-1 md:mt-2 text-sm md:text-base">Manajemen akun dan data anggota OSIS / MPK.</p>
+                    <h1 className="text-2xl md:text-4xl font-extrabold text-black font-black tracking-tight">Direktori Siswa</h1>
+                    <p className="text-black font-bold font-medium mt-1 md:mt-2 text-sm md:text-base">Manajemen akun dan data anggota OSIS / MPK.</p>
                 </div>
                 <div className="flex flex-wrap gap-2 md:gap-3">
                     <a
@@ -243,7 +243,7 @@ export default function SiswaPage() {
                     </select>
                 </div>
                 <div className="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-widest">
-                    Total: <span className="text-primary text-sm md:text-base ml-1 md:ml-2">{siswa.length}</span>
+                    Total: <span className="text-black font-black text-sm md:text-base ml-1 md:ml-2">{siswa.length}</span>
                 </div>
             </div>
 
@@ -251,14 +251,14 @@ export default function SiswaPage() {
                 {/* Desktop Table */}
                 <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left border-collapse">
-                        <thead className="bg-slate-50 border-b border-slate-200">
+                        <thead className="bg-[#FF90E8] border-b-2 border-black">
                             <tr>
-                                <th className="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest w-16 text-center">No</th>
-                                <th className="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Akses ID</th>
-                                <th className="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Identitas Siswa</th>
-                                <th className="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Kelas</th>
-                                <th className="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Afiliasi</th>
-                                <th className="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-right">Otorisasi</th>
+                                <th className="px-8 py-5 text-[11px] font-black text-black uppercase tracking-widest w-16 text-center">No</th>
+                                <th className="px-8 py-5 text-[11px] font-black text-black uppercase tracking-widest">Akses ID</th>
+                                <th className="px-8 py-5 text-[11px] font-black text-black uppercase tracking-widest">Identitas Siswa</th>
+                                <th className="px-8 py-5 text-[11px] font-black text-black uppercase tracking-widest">Kelas</th>
+                                <th className="px-8 py-5 text-[11px] font-black text-black uppercase tracking-widest">Afiliasi</th>
+                                <th className="px-8 py-5 text-[11px] font-black text-black uppercase tracking-widest text-right">Otorisasi</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -273,13 +273,13 @@ export default function SiswaPage() {
                                 </tr>
                             ) : (
                                 siswa.map((s, idx) => (
-                                    <tr key={s.id} className="hover:bg-slate-50/50 transition-colors">
+                                    <tr key={s.id} className="hover:bg-[#FF90E8]/50 transition-colors">
                                         <td className="px-8 py-5 font-bold text-slate-400 text-center text-xs">{idx + 1}</td>
                                         <td className="px-8 py-5">
-                                            <code className="bg-slate-100/80 text-primary px-3 py-1.5 rounded-lg text-xs font-bold tracking-widest border border-slate-200">{s.kode}</code>
+                                            <code className="bg-slate-100/80 text-black font-black px-3 py-1.5 rounded-lg text-xs font-bold tracking-widest border border-black">{s.kode}</code>
                                         </td>
-                                        <td className="px-8 py-5 font-bold text-primary">{s.nama}</td>
-                                        <td className="px-8 py-5 text-slate-500 font-medium">{s.kelas}</td>
+                                        <td className="px-8 py-5 font-bold text-black font-black">{s.nama}</td>
+                                        <td className="px-8 py-5 text-black font-bold font-medium">{s.kelas}</td>
                                         <td className="px-8 py-5">
                                             <span className={`badge ${s.organisasi === 'OSIS' ? 'badge-primary' : 'badge-accent'}`}>
                                                 {s.organisasi}
@@ -288,7 +288,7 @@ export default function SiswaPage() {
                                         <td className="px-8 py-5">
                                             <div className="flex items-center justify-end gap-2 text-slate-400">
                                                 <button
-                                                    className="p-2 hover:bg-amber-50 hover:text-amber-600 rounded-lg transition-colors border border-transparent hover:border-amber-100"
+                                                    className="p-2 hover:bg-amber-50 hover:text-amber-600 rounded-lg transition-colors border border-transparent hover:border-black"
                                                     onClick={() => requestResetPassword(s)}
                                                     title="Reset Sandi"
                                                 >
@@ -298,7 +298,7 @@ export default function SiswaPage() {
                                                     </svg>
                                                 </button>
                                                 <button
-                                                    className="p-2 hover:bg-slate-100 hover:text-primary rounded-lg transition-colors border border-transparent hover:border-slate-200"
+                                                    className="p-2 hover:bg-slate-100 hover:text-black font-black rounded-lg transition-colors border border-transparent hover:border-black"
                                                     onClick={() => openEditModal(s)}
                                                     title="Edit"
                                                 >
@@ -308,7 +308,7 @@ export default function SiswaPage() {
                                                     </svg>
                                                 </button>
                                                 <button
-                                                    className="p-2 hover:bg-rose-50 hover:text-rose-600 rounded-lg transition-colors border border-transparent hover:border-rose-100"
+                                                    className="p-2 hover:bg-rose-50 hover:text-rose-600 rounded-lg transition-colors border border-transparent hover:border-black"
                                                     onClick={() => requestDelete(s.id)}
                                                     title="Hapus"
                                                 >
@@ -342,10 +342,10 @@ export default function SiswaPage() {
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="flex items-center gap-3 min-w-0">
                                             <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                                                <span className="text-xs font-extrabold text-primary">{idx + 1}</span>
+                                                <span className="text-xs font-extrabold text-black font-black">{idx + 1}</span>
                                             </div>
                                             <div className="min-w-0">
-                                                <p className="font-bold text-primary text-sm truncate">{s.nama}</p>
+                                                <p className="font-bold text-black font-black text-sm truncate">{s.nama}</p>
                                                 <div className="flex items-center gap-2 mt-1">
                                                     <span className="text-xs text-slate-400">{s.kelas}</span>
                                                     <span className={`badge text-[9px] px-2 py-0.5 ${s.organisasi === 'OSIS' ? 'badge-primary' : 'badge-accent'}`}>
@@ -365,7 +365,7 @@ export default function SiswaPage() {
                                                 </svg>
                                             </button>
                                             <button
-                                                className="p-2 hover:bg-slate-100 hover:text-primary rounded-lg transition-colors text-slate-400"
+                                                className="p-2 hover:bg-slate-100 hover:text-black font-black rounded-lg transition-colors text-slate-400"
                                                 onClick={() => openEditModal(s)}
                                             >
                                                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -384,7 +384,7 @@ export default function SiswaPage() {
                                             </button>
                                         </div>
                                     </div>
-                                    <code className="bg-slate-50 text-primary px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-widest border border-slate-200 inline-block">{s.kode}</code>
+                                    <code className="bg-[#FF90E8] text-black font-black px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-widest border border-black inline-block">{s.kode}</code>
                                 </div>
                             ))}
                         </div>
@@ -394,13 +394,13 @@ export default function SiswaPage() {
         </div>
 
             {showModal && (
-                <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-primary/40 backdrop-blur-sm transition-all" onClick={closeModal}>
-                    <div className="bg-white rounded-t-3xl sm:rounded-3xl shadow-premium w-full sm:max-w-md overflow-hidden transform transition-all border border-slate-100 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-                        <div className="px-5 sm:px-8 py-5 sm:py-6 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white z-10">
-                            <h2 className="text-lg sm:text-xl font-extrabold text-primary tracking-tight">
+                <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-primary/40  transition-all" onClick={closeModal}>
+                    <div className="bg-white rounded-t-3xl sm:rounded-none border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] w-full sm:max-w-md overflow-hidden transform transition-all border border-black max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                        <div className="px-5 sm:px-8 py-5 sm:py-6 border-b border-black flex justify-between items-center sticky top-0 bg-white z-10">
+                            <h2 className="text-lg sm:text-xl font-extrabold text-black font-black tracking-tight">
                                 {showCredentials ? 'Akses Terotorisasi' : editMode ? 'Modifikasi Data' : 'Registrasi Anggota Baru'}
                             </h2>
-                            <button className="text-slate-400 hover:text-primary transition-colors p-2 rounded-xl hover:bg-slate-50" onClick={closeModal}>
+                            <button className="text-slate-400 hover:text-black font-black transition-colors p-2 rounded-none border-2 border-black hover:bg-[#FF90E8]" onClick={closeModal}>
                                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
@@ -409,25 +409,25 @@ export default function SiswaPage() {
 
                         {showCredentials ? (
                             <div className="p-5 sm:p-8 space-y-6 sm:space-y-8">
-                                <div className="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-5 sm:p-6 text-center shadow-inner">
+                                <div className="bg-emerald-50/50 border border-black rounded-none border-2 border-black p-5 sm:p-6 text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                                     <p className="text-emerald-700 text-xs font-bold uppercase tracking-widest mb-5 sm:mb-6">Amankan Informasi Berikut</p>
                                     <div className="space-y-4 sm:space-y-5">
                                         <div>
                                             <label className="block text-[10px] uppercase font-black tracking-widest text-slate-400 mb-2">ID KODE</label>
-                                            <div className="text-xl sm:text-2xl font-extrabold font-mono text-primary bg-white py-3 px-4 sm:px-5 rounded-xl border border-slate-200 shadow-sm inline-block min-w-[120px] sm:min-w-[150px] tracking-[0.2em]">
+                                            <div className="text-xl sm:text-2xl font-extrabold font-mono text-black font-black bg-white py-3 px-4 sm:px-5 rounded-none border-2 border-black border border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] inline-block min-w-[120px] sm:min-w-[150px] tracking-[0.2em]">
                                                 {showCredentials.kode}
                                             </div>
                                         </div>
                                         <div>
                                             <label className="block text-[10px] uppercase font-black tracking-widest text-slate-400 mb-2">Sandi Acak</label>
-                                            <div className="text-lg sm:text-xl font-extrabold font-mono text-primary bg-white py-3 px-4 sm:px-5 rounded-xl border border-slate-200 shadow-sm inline-block min-w-[120px] sm:min-w-[150px] tracking-[0.2em] select-all">
+                                            <div className="text-lg sm:text-xl font-extrabold font-mono text-black font-black bg-white py-3 px-4 sm:px-5 rounded-none border-2 border-black border border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] inline-block min-w-[120px] sm:min-w-[150px] tracking-[0.2em] select-all">
                                                 {showCredentials.sandi}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="mt-6 sm:mt-8 flex gap-3">
-                                    <button className="btn btn-secondary !bg-white !text-slate-600 !border-slate-300 hover:!bg-slate-50 hover:!text-slate-800 flex-1 py-3" onClick={closeModal}>
+                                    <button className="btn btn-secondary !bg-white !text-black font-bold !border-black hover:!bg-[#FF90E8] hover:!text-black font-bold flex-1 py-3" onClick={closeModal}>
                                         TUTUP
                                     </button>
                                 </div>
@@ -478,8 +478,8 @@ export default function SiswaPage() {
                                         </select>
                                     </div>
                                 </div>
-                                <div className="px-5 sm:px-8 py-4 sm:py-5 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 bg-slate-50">
-                                    <button type="button" className="btn btn-secondary !bg-white !text-slate-600 !border-slate-300 hover:!bg-slate-50 hover:!text-slate-800 text-xs order-2 sm:order-1" onClick={closeModal}>
+                                <div className="px-5 sm:px-8 py-4 sm:py-5 border-t border-black flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 bg-[#FF90E8]">
+                                    <button type="button" className="btn btn-secondary !bg-white !text-black font-bold !border-black hover:!bg-[#FF90E8] hover:!text-black font-bold text-xs order-2 sm:order-1" onClick={closeModal}>
                                         BATAL
                                     </button>
                                     <button type="submit" className="btn btn-primary text-xs w-full sm:w-auto order-1 sm:order-2">
@@ -494,9 +494,9 @@ export default function SiswaPage() {
 
             {/* Interactive Confirm Modal */}
             {showConfirmModal && (
-                <div className="fixed inset-0 z-[120] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-primary/40 backdrop-blur-sm transition-all" onClick={() => setShowConfirmModal(false)}>
-                    <div className="bg-white rounded-t-3xl sm:rounded-3xl shadow-premium w-full sm:max-w-sm overflow-hidden transform transition-all border border-slate-100 p-6 text-center" onClick={(e) => e.stopPropagation()}>
-                        <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center border-4 border-white shadow-sm mb-4 ${confirmAction.type === 'DELETE' ? 'bg-rose-50 text-rose-500' : 'bg-amber-50 text-amber-500'}`}>
+                <div className="fixed inset-0 z-[120] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-primary/40  transition-all" onClick={() => setShowConfirmModal(false)}>
+                    <div className="bg-white rounded-t-3xl sm:rounded-none border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] w-full sm:max-w-sm overflow-hidden transform transition-all border border-black p-6 text-center" onClick={(e) => e.stopPropagation()}>
+                        <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-4 ${confirmAction.type === 'DELETE' ? 'bg-rose-50 text-rose-500' : 'bg-amber-50 text-amber-500'}`}>
                             {confirmAction.type === 'DELETE' ? (
                                 <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -507,18 +507,18 @@ export default function SiswaPage() {
                                 </svg>
                             )}
                         </div>
-                        <h3 className="text-xl font-extrabold text-primary tracking-tight mb-2">
+                        <h3 className="text-xl font-extrabold text-black font-black tracking-tight mb-2">
                             {confirmAction.title}
                         </h3>
-                        <p className="text-slate-500 text-sm font-medium mb-8">
+                        <p className="text-black font-bold text-sm font-medium mb-8">
                             {confirmAction.description}
                         </p>
                         <div className="flex gap-3 mt-4">
-                            <button className="btn btn-secondary !bg-white !text-slate-600 !border-slate-300 hover:!bg-slate-50 hover:!text-slate-800 flex-1 text-xs" onClick={() => setShowConfirmModal(false)}>
+                            <button className="btn btn-secondary !bg-white !text-black font-bold !border-black hover:!bg-[#FF90E8] hover:!text-black font-bold flex-1 text-xs" onClick={() => setShowConfirmModal(false)}>
                                 {confirmAction.cancelText}
                             </button>
                             <button 
-                                className={`btn flex-1 text-xs text-white ${confirmAction.type === 'DELETE' ? 'bg-rose-500 hover:bg-rose-600 border border-transparent shadow-[0_4px_12px_rgba(244,63,94,0.3)]' : 'bg-amber-500 hover:bg-amber-600 border border-transparent shadow-[0_4px_12px_rgba(245,158,11,0.3)]'}`}
+                                className={`btn flex-1 text-xs text-white ${confirmAction.type === 'DELETE' ? 'bg-rose-500 hover:bg-rose-600 border border-transparent shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'bg-amber-500 hover:bg-amber-600 border border-transparent shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'}`}
                                 onClick={handleConfirm}
                             >
                                 {confirmAction.confirmText}

@@ -79,14 +79,14 @@ export default function ExportPage() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-5 md:space-y-8 animate-fadeIn">
-            <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 pb-4 md:pb-6 border-b border-slate-200">
+            <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 pb-4 md:pb-6 border-b border-black">
                 <div>
-                    <h1 className="text-2xl md:text-4xl font-extrabold text-primary tracking-tight">Eksportasi Laporan</h1>
-                    <p className="text-slate-500 font-medium mt-1 md:mt-2 text-sm md:text-base">Unduh arsip log presensi secara struktural.</p>
+                    <h1 className="text-2xl md:text-4xl font-extrabold text-black font-black tracking-tight">Eksportasi Laporan</h1>
+                    <p className="text-black font-bold font-medium mt-1 md:mt-2 text-sm md:text-base">Unduh arsip log presensi secara struktural.</p>
                 </div>
             </header>
 
-            <div className="bg-white rounded-2xl md:rounded-[2rem] p-5 md:p-10 shadow-premium border border-slate-100 space-y-6 md:space-y-10 border-t-4 border-t-primary">
+            <div className="bg-white rounded-none border-2 border-black md:rounded-none border-2 border-black p-5 md:p-10 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border border-black space-y-6 md:space-y-10 border-t-4 border-t-primary">
 
                 {/* 1. Range Selection */}
                 <div>
@@ -107,7 +107,7 @@ export default function ExportPage() {
                         </button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 bg-slate-50 p-4 md:p-6 rounded-xl md:rounded-2xl border border-slate-200">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 bg-[#FF90E8] p-4 md:p-6 rounded-none border-2 border-black md:rounded-none border-2 border-black border border-black">
                         <div className="form-group mb-0">
                             <label className="form-label text-[10px] md:text-xs">Titik Mulai</label>
                             <input
@@ -129,34 +129,34 @@ export default function ExportPage() {
                     </div>
                 </div>
 
-                <div className="border-t border-slate-100"></div>
+                <div className="border-t border-black"></div>
 
                 {/* 2. Organization Filter */}
                 <div>
                     <h3 className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 md:mb-6">2. Pemfilteran Organisasi</h3>
                     <div className="grid grid-cols-3 gap-2 md:gap-4">
                         <button
-                            className={`flex flex-col items-center gap-2 md:gap-3 p-4 md:p-6 rounded-xl md:rounded-2xl border-2 transition-all duration-200 ${organisasi === ''
-                                ? 'bg-primary border-primary text-white shadow-md'
-                                : 'bg-white border-slate-200 hover:border-slate-300 text-slate-500'
+                            className={`flex flex-col items-center gap-2 md:gap-3 p-4 md:p-6 rounded-none border-2 border-black md:rounded-none border-2 border-black border-2 transition-all duration-200 ${organisasi === ''
+                                ? 'bg-primary border-primary text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
+                                : 'bg-white border-black hover:border-black text-black font-bold'
                                 }`}
                             onClick={() => setOrganisasi('')}
                         >
                             <span className="text-[10px] md:text-sm font-bold tracking-widest uppercase">SEMUA</span>
                         </button>
                         <button
-                            className={`flex flex-col items-center gap-2 md:gap-3 p-4 md:p-6 rounded-xl md:rounded-2xl border-2 transition-all duration-200 ${organisasi === 'OSIS'
-                                ? 'bg-primary border-primary text-white shadow-md'
-                                : 'bg-white border-slate-200 hover:border-slate-300 text-slate-500'
+                            className={`flex flex-col items-center gap-2 md:gap-3 p-4 md:p-6 rounded-none border-2 border-black md:rounded-none border-2 border-black border-2 transition-all duration-200 ${organisasi === 'OSIS'
+                                ? 'bg-primary border-primary text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
+                                : 'bg-white border-black hover:border-black text-black font-bold'
                                 }`}
                             onClick={() => setOrganisasi('OSIS')}
                         >
                             <span className="text-[10px] md:text-sm font-bold tracking-widest uppercase">OSIS</span>
                         </button>
                         <button
-                            className={`flex flex-col items-center gap-2 md:gap-3 p-4 md:p-6 rounded-xl md:rounded-2xl border-2 transition-all duration-200 ${organisasi === 'MPK'
-                                ? 'bg-primary border-primary text-white shadow-md'
-                                : 'bg-white border-slate-200 hover:border-slate-300 text-slate-500'
+                            className={`flex flex-col items-center gap-2 md:gap-3 p-4 md:p-6 rounded-none border-2 border-black md:rounded-none border-2 border-black border-2 transition-all duration-200 ${organisasi === 'MPK'
+                                ? 'bg-primary border-primary text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
+                                : 'bg-white border-black hover:border-black text-black font-bold'
                                 }`}
                             onClick={() => setOrganisasi('MPK')}
                         >
@@ -173,11 +173,11 @@ export default function ExportPage() {
                 )}
 
                 {/* Summary Box */}
-                <div className="bg-primary rounded-xl md:rounded-2xl p-5 md:p-8 flex flex-col gap-4 md:gap-6 shadow-md border border-slate-800 text-white">
+                <div className="bg-primary rounded-none border-2 border-black md:rounded-none border-2 border-black p-5 md:p-8 flex flex-col gap-4 md:gap-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border border-black text-white">
                     <div className="space-y-3 md:space-y-4 flex-1">
                         <h3 className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">3. Konfigurasi Ekspor</h3>
                         <div className="flex flex-col gap-2">
-                            <div className="flex justify-between items-center text-xs md:text-sm font-medium border-b border-white/10 pb-2">
+                            <div className="flex justify-between items-center text-xs md:text-sm font-medium border-b border-black pb-2">
                                 <span className="text-slate-400">Periode:</span>
                                 <span className="font-bold tracking-wide text-right">
                                     {startDate && endDate
@@ -193,14 +193,14 @@ export default function ExportPage() {
                     </div>
 
                     <button
-                        className="btn bg-accent text-white hover:bg-accent-light shadow-xl py-3.5 md:py-4 px-6 md:px-8 text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed w-full"
+                        className="btn bg-accent text-black font-black hover:bg-accent-light border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] py-3.5 md:py-4 px-6 md:px-8 text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed w-full transition-all"
                         onClick={handleExport}
                         disabled={loading || !startDate || !endDate}
                     >
                         {loading ? (
                             <>
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                <span className="tracking-wide font-bold mx-2">PACKING DATA...</span>
+                                <div className="w-5 h-5 border-2 border-black border-t-white rounded-full animate-spin"></div>
+                                <span className="tracking-wide font-bold mx-2 text-black">PACKING DATA...</span>
                             </>
                         ) : (
                             <>
@@ -209,7 +209,7 @@ export default function ExportPage() {
                                     <polyline points="7 10 12 15 17 10" />
                                     <line x1="12" y1="15" x2="12" y2="3" />
                                 </svg>
-                                <span className="tracking-wide font-extrabold text-sm md:text-base">EXPORT (.XLSX)</span>
+                                <span className="tracking-wide font-extrabold text-sm md:text-base text-black">EXPORT (.XLSX)</span>
                             </>
                         )}
                     </button>

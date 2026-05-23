@@ -206,10 +206,11 @@ export default function PresensiPage() {
 
     return (
         <div className="max-w-7xl mx-auto space-y-5 md:space-y-8 animate-fadeIn">
-            <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 pb-4 md:pb-6 border-b border-slate-200">
+            <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 pb-6 border-b-4 border-black">
                 <div>
-                    <h1 className="text-2xl md:text-4xl font-extrabold text-primary tracking-tight">Log Absensi</h1>
-                    <p className="text-slate-500 font-medium mt-1 md:mt-2 text-sm md:text-base">Arus waktu kehadiran siswa secara spesifik dan valid.</p>
+                    <div className="inline-block bg-[#FF90E8] border-2 border-black text-black text-xs font-black px-3 py-1 tracking-[0.3em] uppercase shadow-[3px_3px_0px_0px_#000] mb-3">LOG ABSENSI</div>
+                    <h1 className="text-3xl md:text-5xl font-black text-black tracking-tight">DATA PRESENSI</h1>
+                    <p className="text-black/60 font-bold mt-1 text-sm">Filter dan pantau semua data kehadiran siswa.</p>
                 </div>
                 <div>
                     <a
@@ -218,25 +219,27 @@ export default function PresensiPage() {
                         className="btn btn-primary font-bold text-xs md:text-sm"
                     >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            <path strokeLinecap="square" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        <span className="hidden sm:inline">CETAK LAPORAN (XLSX)</span>
-                        <span className="sm:hidden">CETAK</span>
+                        <span className="hidden sm:inline">📊 CETAK LAPORAN XLSX</span>
+                        <span className="sm:hidden">📊 CETAK</span>
                     </a>
                 </div>
             </header>
 
-            <div className="card p-4 md:p-8 space-y-5 md:space-y-8 border-t-4 border-t-primary">
+            <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000]">
+                <div className="bg-[#FFE600] border-b-2 border-black px-6 py-3"><span className="font-black text-xs tracking-[0.3em] uppercase">🔎 Filter Data</span></div>
+            <div className="p-4 md:p-6 space-y-5 md:space-y-6">
                 <div className="flex flex-col lg:flex-row gap-4 md:gap-6 lg:items-end">
                     <div className="form-group mb-0 flex-1">
                         <label className="form-label">Tipe Filter Periode</label>
-                        <div className="flex bg-slate-100 p-1.5 rounded-xl border border-slate-200 w-full md:w-fit">
+                        <div className="flex border-2 border-black w-full md:w-fit bg-white shadow-[3px_3px_0px_0px_#000]">
                             {['harian', 'mingguan', 'bulanan'].map((type) => (
                                 <button
                                     key={type}
-                                    className={`flex-1 md:flex-none px-4 md:px-6 py-2 md:py-2.5 rounded-lg text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all ${filterType === type
-                                        ? 'bg-white text-primary shadow-sm border border-slate-200'
-                                        : 'text-slate-400 hover:text-primary'
+                                    className={`flex-1 md:flex-none px-4 md:px-6 py-2.5 text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-r-2 last:border-r-0 border-black ${filterType === type
+                                        ? 'bg-black text-[#FFE600]'
+                                        : 'text-black hover:bg-[#FF90E8]'
                                         }`}
                                     onClick={() => setFilterType(type)}
                                 >
@@ -250,7 +253,7 @@ export default function PresensiPage() {
                         <div className="form-group mb-0">
                             <label className="form-label text-[10px] md:text-xs">Organisasi</label>
                             <select
-                                className="select py-2 md:py-2.5 bg-slate-50 text-xs md:text-sm"
+                                className="select py-2 md:py-2.5 bg-[#FF90E8] text-xs md:text-sm"
                                 value={organisasiFilter}
                                 onChange={(e) => setOrganisasiFilter(e.target.value)}
                             >
@@ -263,7 +266,7 @@ export default function PresensiPage() {
                         <div className="form-group mb-0">
                             <label className="form-label text-[10px] md:text-xs">Status</label>
                             <select
-                                className="select py-2 md:py-2.5 bg-slate-50 text-xs md:text-sm"
+                                className="select py-2 md:py-2.5 bg-[#FF90E8] text-xs md:text-sm"
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
                             >
@@ -282,7 +285,7 @@ export default function PresensiPage() {
                                 <label className="form-label text-[10px] md:text-xs">Tanggal</label>
                                 <input
                                     type="date"
-                                    className="input py-2 md:py-2.5 bg-slate-50 cursor-text text-xs md:text-sm"
+                                    className="input py-2 md:py-2.5 bg-[#FF90E8] cursor-text text-xs md:text-sm"
                                     value={selectedDate}
                                     onChange={(e) => setSelectedDate(e.target.value)}
                                 />
@@ -294,7 +297,7 @@ export default function PresensiPage() {
                                 <label className="form-label text-[10px] md:text-xs">Start Minggu</label>
                                 <input
                                     type="date"
-                                    className="input py-2 md:py-2.5 bg-slate-50 cursor-text text-xs md:text-sm"
+                                    className="input py-2 md:py-2.5 bg-[#FF90E8] cursor-text text-xs md:text-sm"
                                     value={selectedWeek}
                                     onChange={(e) => setSelectedWeek(e.target.value)}
                                 />
@@ -306,7 +309,7 @@ export default function PresensiPage() {
                                 <label className="form-label text-[10px] md:text-xs">Bulan</label>
                                 <input
                                     type="month"
-                                    className="input py-2 md:py-2.5 bg-slate-50 cursor-text text-xs md:text-sm"
+                                    className="input py-2 md:py-2.5 bg-[#FF90E8] cursor-text text-xs md:text-sm"
                                     value={selectedMonth}
                                     onChange={(e) => setSelectedMonth(e.target.value)}
                                 />
@@ -315,55 +318,45 @@ export default function PresensiPage() {
                     </div>
                 </div>
             </div>
+            </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-6">
-                <div className="card p-4 md:p-6 border-l-4 md:border-l-[6px] border-l-emerald-500 rounded-2xl md:rounded-[24px]">
-                    <div className="text-2xl md:text-4xl font-extrabold text-primary tracking-tight">{stats.hadir}</div>
-                    <div className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1.5 md:mt-2">Data Hadir</div>
-                </div>
-                <div className="card p-4 md:p-6 border-l-4 md:border-l-[6px] border-l-amber-400 rounded-2xl md:rounded-[24px]">
-                    <div className="text-2xl md:text-4xl font-extrabold text-primary tracking-tight">{stats.hadir_luar_radius}</div>
-                    <div className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1.5 md:mt-2">Data Hadir (Luar Radius)</div>
-                </div>
-                <div className="card p-4 md:p-6 border-l-4 md:border-l-[6px] border-l-amber-500 rounded-2xl md:rounded-[24px]">
-                    <div className="text-2xl md:text-4xl font-extrabold text-primary tracking-tight">{stats.izin}</div>
-                    <div className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1.5 md:mt-2">Data Izin</div>
-                </div>
-                <div className="card p-4 md:p-6 border-l-4 md:border-l-[6px] border-l-rose-500 rounded-2xl md:rounded-[24px]">
-                    <div className="text-2xl md:text-4xl font-extrabold text-primary tracking-tight">{stats.sakit}</div>
-                    <div className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1.5 md:mt-2">Data Sakit</div>
-                </div>
-                <div className="card p-4 md:p-6 border-l-4 md:border-l-[6px] border-l-accent rounded-2xl md:rounded-[24px]">
-                    <div className="text-2xl md:text-4xl font-extrabold text-primary tracking-tight">{stats.pulang}</div>
-                    <div className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1.5 md:mt-2">Data Pulang</div>
-                </div>
-                <div className="card p-4 md:p-6 border-l-4 md:border-l-[6px] border-l-red-600 rounded-2xl md:rounded-[24px]">
-                    <div className="text-2xl md:text-4xl font-extrabold text-primary tracking-tight">{stats.tidak_hadir}</div>
-                    <div className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1.5 md:mt-2">Tidak Hadir</div>
-                </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
+                {[
+                  { label: 'HADIR',       val: stats.hadir,             bg: 'bg-[#00FF94]' },
+                  { label: 'LUAR RADIUS', val: stats.hadir_luar_radius,  bg: 'bg-[#FFE600]' },
+                  { label: 'IZIN',        val: stats.izin,               bg: 'bg-[#FFE600]' },
+                  { label: 'SAKIT',       val: stats.sakit,              bg: 'bg-[#FF3333] text-white' },
+                  { label: 'PULANG',      val: stats.pulang,             bg: 'bg-[#FF90E8]' },
+                  { label: 'TDK HADIR',   val: stats.tidak_hadir,        bg: 'bg-black text-[#FFE600]' },
+                ].map(s => (
+                  <div key={s.label} className={`${s.bg} border-2 border-black shadow-[4px_4px_0px_0px_#000] p-4 flex flex-col gap-2`}>
+                    <div className="text-2xl md:text-4xl font-black font-mono tracking-tight">{s.val}</div>
+                    <div className="text-[9px] font-black uppercase tracking-[0.2em] opacity-70">{s.label}</div>
+                  </div>
+                ))}
             </div>
 
             {loading ? (
-                <div className="min-h-[30vh] flex flex-col items-center justify-center gap-6 text-slate-400">
-                    <div className="w-10 h-10 border-[3px] border-slate-200 border-t-primary rounded-full animate-spin"></div>
+                <div className="min-h-[30vh] flex flex-col items-center justify-center gap-4">
+                    <div className="w-10 h-10 border-4 border-black border-t-[#FF90E8] animate-spin"></div>
+                    <p className="font-black uppercase tracking-[0.3em] text-xs">MEMUAT DATA...</p>
                 </div>
             ) : (
-                <div className="card overflow-hidden">
-                    {/* Desktop Table */}
+                <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000] overflow-hidden">
                     <div className="hidden md:block overflow-x-auto">
                         <table className="w-full text-left border-collapse">
-                            <thead className="bg-slate-50 border-b border-slate-200">
+                            <thead className="bg-[#FFE600] border-b-2 border-black">
                                 <tr>
-                                    <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest w-16 text-center">No</th>
-                                    <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Tanggal</th>
-                                    <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Personil</th>
-                                    <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Kelas</th>
-                                    <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Afiliasi</th>
-                                    <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Status & Waktu</th>
-                                    <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">GPS</th>
+                                    <th className="px-6 py-4 text-[11px] font-black text-black uppercase tracking-[0.2em] w-16 text-center">#</th>
+                                    <th className="px-6 py-4 text-[11px] font-black text-black uppercase tracking-[0.2em]">Tanggal</th>
+                                    <th className="px-6 py-4 text-[11px] font-black text-black uppercase tracking-[0.2em]">Personil</th>
+                                    <th className="px-6 py-4 text-[11px] font-black text-black uppercase tracking-[0.2em]">Kelas</th>
+                                    <th className="px-6 py-4 text-[11px] font-black text-black uppercase tracking-[0.2em]">Afiliasi</th>
+                                    <th className="px-6 py-4 text-[11px] font-black text-black uppercase tracking-[0.2em]">Status & Waktu</th>
+                                    <th className="px-6 py-4 text-[11px] font-black text-black uppercase tracking-[0.2em]">GPS</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100">
+                            <tbody className="divide-y-2 divide-black">
                                 {groupedPresensi.length === 0 ? (
                                     <tr>
                                         <td colSpan="7" className="px-8 py-16 text-center text-slate-400">
@@ -375,11 +368,11 @@ export default function PresensiPage() {
                                     </tr>
                                 ) : (
                                     groupedPresensi.map((group, idx) => (
-                                        <tr key={group.key} className="hover:bg-slate-50/50 transition-colors">
+                                        <tr key={group.key} className="hover:bg-[#FFE600]/30 transition-colors">
                                             <td className="px-6 py-5 font-bold text-slate-400 text-center text-xs">{idx + 1}</td>
-                                            <td className="px-6 py-5 font-bold text-slate-500 text-xs tracking-wide">{formatDate(group.tanggal)}</td>
-                                            <td className="px-6 py-5 font-bold text-primary">{group.namaSiswa}</td>
-                                            <td className="px-6 py-5 text-slate-500 font-medium">{group.kelasSiswa}</td>
+                                            <td className="px-6 py-5 font-bold text-black font-bold text-xs tracking-wide">{formatDate(group.tanggal)}</td>
+                                            <td className="px-6 py-5 font-bold text-black font-black">{group.namaSiswa}</td>
+                                            <td className="px-6 py-5 text-black font-bold font-medium">{group.kelasSiswa}</td>
                                             <td className="px-6 py-5">
                                                 <span className={`badge ${group.organisasiSiswa === 'OSIS' ? 'badge-primary' : 'badge-accent'}`}>
                                                     {group.organisasiSiswa}
@@ -393,7 +386,7 @@ export default function PresensiPage() {
                                                                 {getStatusLabel(entry.status)}
                                                             </span>
                                                             {entry.status !== 'tidak_hadir' && (
-                                                                <span className="font-mono font-bold text-primary text-xs tracking-wider">
+                                                                <span className="font-mono font-bold text-black font-black text-xs tracking-wider">
                                                                     {entry.waktu}
                                                                 </span>
                                                             )}
@@ -442,7 +435,7 @@ export default function PresensiPage() {
                                     <div key={group.key} className="p-4 space-y-2.5">
                                         <div className="flex items-start justify-between gap-2">
                                             <div className="min-w-0">
-                                                <p className="font-bold text-primary text-sm truncate">{group.namaSiswa}</p>
+                                                <p className="font-bold text-black font-black text-sm truncate">{group.namaSiswa}</p>
                                                 <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                                                     <span className="text-xs text-slate-400">{group.kelasSiswa}</span>
                                                     <span className="text-slate-300">&bull;</span>
@@ -461,7 +454,7 @@ export default function PresensiPage() {
                                                     </span>
                                                     {entry.status !== 'tidak_hadir' && (
                                                         <>
-                                                            <span className="font-mono font-bold text-primary">{entry.waktu}</span>
+                                                            <span className="font-mono font-bold text-black font-black">{entry.waktu}</span>
                                                             <span className="text-slate-300">&bull;</span>
                                                             <span className="flex items-center gap-1 text-slate-400 font-medium">
                                                                 <span className={`w-1.5 h-1.5 rounded-full ${entry.isAtSchool ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>

@@ -6,18 +6,25 @@ import { useState, useEffect } from 'react';
 export default function SiswaLayout({ children }) {
   const router = useRouter();
   const [user, setUser] = useState(null);
+  const [time, setTime] = useState('');
 
   useEffect(() => {
     fetchUser();
+    // Live clock
+    const tick = () => {
+      const now = new Date();
+      setTime(now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Jakarta' }));
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
   }, []);
 
   const fetchUser = async () => {
     try {
       const res = await fetch('/api/auth/me');
       const data = await res.json();
-      if (data.success) {
-        setUser(data.user);
-      }
+      if (data.success) setUser(data.user);
     } catch (error) {
       console.error('Error fetching user:', error);
     }
@@ -29,48 +36,62 @@ export default function SiswaLayout({ children }) {
   };
 
   return (
-    <div className="min-h-screen bg-surface-muted pb-20 md:pb-0">
-      <header className="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50 h-20 flex items-center px-4 md:px-8">
-        <div className="max-w-4xl mx-auto w-full flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shrink-0">
-              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+    <div className="min-h-screen bg-[#FFE600] pb-8">
+      {/* Ticker tape top bar */}
+      <div className="bg-black text-[#FFE600] overflow-hidden h-8 flex items-center border-b-2 border-black">
+        <div className="flex whitespace-nowrap animate-marquee">
+          {Array(6).fill('★ SISTEM PRESENSI DIGITAL ★ OSIS & MPK ★ CATAT KEHADIRANMU SEKARANG ★ REAL-TIME GPS TRACKING ★ ').map((t, i) => (
+            <span key={i} className="text-xs font-bold tracking-[0.3em] uppercase pr-8">{t}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* Header */}
+      <header className="bg-white border-b-4 border-black sticky top-0 z-50">
+        <div className="max-w-4xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
+          {/* Brand */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-black flex items-center justify-center border-2 border-black shadow-[3px_3px_0px_0px_#FF90E8]">
+              <svg className="w-5 h-5 text-[#FFE600]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="square" strokeWidth={2.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
             </div>
             <div>
-              <h1 className="font-extrabold text-accent text-xl tracking-tight leading-none">
-                {user?.nama ? `Halo, ${user.nama.split(' ')[0]}!` : 'MEMUAT...'}
-              </h1>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">
-                {user?.organisasi || 'MEMUAT...'} <span className="text-primary">•</span> {user?.kelas || ''}
-              </p>
+              <div className="font-black text-black text-sm tracking-tight leading-none">
+                {user?.nama ? `HALO, ${user.nama.split(' ')[0].toUpperCase()}!` : 'MEMUAT...'}
+              </div>
+              <div className="text-[10px] font-bold text-black/50 tracking-widest uppercase">
+                {user?.organisasi || '—'} · {user?.kelas || '—'}
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-5">
-            {user && (
-              <>
-                <div className="hidden md:block text-right">
-                  <div className="font-bold text-primary text-sm tracking-wide">{user.nama}</div>
-                  <div className="text-xs font-semibold text-slate-400 mt-0.5">{user.kelas}</div>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="w-10 h-10 rounded-xl bg-slate-50 text-slate-500 flex items-center justify-center hover:bg-rose-50 hover:text-rose-600 transition-colors border border-slate-200 hover:border-rose-200"
-                  title="Keluar"
-                >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                  </svg>
-                </button>
-              </>
-            )}
+          {/* Right side */}
+          <div className="flex items-center gap-3">
+            {/* Live clock */}
+            <div className="hidden md:flex items-center gap-2 bg-black text-[#FFE600] px-3 py-1.5 border-2 border-black shadow-[3px_3px_0px_0px_#FF90E8] font-mono text-sm font-bold">
+              <span className="w-2 h-2 bg-[#00FF94] rounded-full animate-pulse" />
+              {time}
+            </div>
+
+            {/* Logout */}
+            <button
+              onClick={handleLogout}
+              id="logout-btn"
+              className="btn btn-sm bg-black text-[#FFE600] border-black"
+              title="Keluar"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="square" strokeWidth={2.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              <span className="hidden sm:inline">KELUAR</span>
+            </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto p-4 md:p-8 space-y-8 mt-4">
+      {/* Page content */}
+      <main className="max-w-4xl mx-auto p-4 md:p-8 space-y-6 mt-2">
         {children}
       </main>
     </div>
