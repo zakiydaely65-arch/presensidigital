@@ -221,14 +221,19 @@ export default function PresensiPage() {
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="square" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        <span className="hidden sm:inline">📊 CETAK LAPORAN XLSX</span>
-                        <span className="sm:hidden">📊 CETAK</span>
+                        <span className="hidden sm:inline">CETAK LAPORAN XLSX</span>
+                        <span className="sm:hidden">CETAK</span>
                     </a>
                 </div>
             </header>
 
             <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000]">
-                <div className="bg-[#FFE600] border-b-2 border-black px-6 py-3"><span className="font-black text-xs tracking-[0.3em] uppercase">🔎 Filter Data</span></div>
+                <div className="bg-[#FFE600] border-b-2 border-black px-6 py-3">
+                  <span className="font-black text-xs tracking-[0.3em] uppercase flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    Filter Data
+                  </span>
+                </div>
             <div className="p-4 md:p-6 space-y-5 md:space-y-6">
                 <div className="flex flex-col lg:flex-row gap-4 md:gap-6 lg:items-end">
                     <div className="form-group mb-0 flex-1">

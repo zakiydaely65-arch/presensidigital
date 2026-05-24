@@ -81,12 +81,13 @@ export default function LandingPage() {
           {/* Trust badges */}
           <div className="flex flex-wrap gap-3">
             {[
-              { icon: '📡', text: 'GPS Real-Time' },
-              { icon: '⚡', text: 'Respons < 2 Detik' },
-              { icon: '🔒', text: 'Data Terenkripsi' },
+              { iconPath: 'M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0', text: 'GPS Real-Time' },
+              { iconPath: 'M13 10V3L4 14h7v7l9-11h-7z', text: 'Respons < 2 Detik' },
+              { iconPath: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z', text: 'Data Terenkripsi' },
             ].map(b => (
               <div key={b.text} className="flex items-center gap-2 bg-white border-2 border-black px-3 py-2 shadow-[3px_3px_0px_0px_#000] text-sm font-bold">
-                <span>{b.icon}</span> {b.text}
+                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d={b.iconPath} /></svg>
+                {b.text}
               </div>
             ))}
           </div>
@@ -163,24 +164,29 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-3 gap-5">
             {[
               {
-                icon: '📡', title: 'Geolokasi GPS Akurat',
+                iconPath: 'M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0',
+                title: 'Geolokasi GPS Akurat',
                 desc: 'Koordinat lat/long diverifikasi secara ketat agar presensi hanya bisa dilakukan di area sekolah.',
-                bg: 'bg-black', textColor: 'text-[#FFE600]', descColor: 'text-white/60', iconBg: 'bg-[#FFE600]'
+                bg: 'bg-black', textColor: 'text-[#FFE600]', descColor: 'text-white/60', iconBg: 'bg-[#FFE600]', iconColor: 'text-black'
               },
               {
-                icon: '📊', title: 'Dashboard Real-time',
+                iconPath: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+                title: 'Dashboard Real-time',
                 desc: 'Admin bisa memantau siapa yang hadir, izin, atau sakit langsung dari browser tanpa refresh manual.',
-                bg: 'bg-[#FF90E8]', textColor: 'text-black', descColor: 'text-black/70', iconBg: 'bg-black'
+                bg: 'bg-[#FF90E8]', textColor: 'text-black', descColor: 'text-black/70', iconBg: 'bg-black', iconColor: 'text-[#FFE600]'
               },
               {
-                icon: '📤', title: 'Export Satu Klik',
+                iconPath: 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4',
+                title: 'Export Satu Klik',
                 desc: 'Unduh rekapitulasi presensi ke format XLSX siap pakai untuk keperluan laporan LPJ.',
-                bg: 'bg-white', textColor: 'text-black', descColor: 'text-black/60', iconBg: 'bg-[#00FF94]'
+                bg: 'bg-white', textColor: 'text-black', descColor: 'text-black/60', iconBg: 'bg-[#00FF94]', iconColor: 'text-black'
               },
             ].map((f) => (
               <div key={f.title} className={`${f.bg} border-2 border-black shadow-[6px_6px_0px_0px_#000] p-8 flex flex-col gap-5 hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-[3px_3px_0px_0px_#000] transition-all`}>
-                <div className={`w-14 h-14 ${f.iconBg} border-2 border-black flex items-center justify-center text-2xl shadow-[3px_3px_0px_0px_#000]`}>
-                  {f.icon}
+                <div className={`w-14 h-14 ${f.iconBg} border-2 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_#000]`}>
+                  <svg className={`w-7 h-7 ${f.iconColor}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d={f.iconPath} />
+                  </svg>
                 </div>
                 <div>
                   <h3 className={`font-black text-xl tracking-tight ${f.textColor}`}>{f.title}</h3>
@@ -204,8 +210,9 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/siswa" id="cta-siswa-btn"
-              className="btn btn-yellow btn-lg border-[#FFE600] shadow-[6px_6px_0px_0px_#FF90E8] hover:shadow-[3px_3px_0px_0px_#FF90E8]">
-              🚀 MULAI PRESENSI
+              className="btn btn-yellow btn-lg border-[#FFE600] shadow-[6px_6px_0px_0px_#FF90E8] hover:shadow-[3px_3px_0px_0px_#FF90E8] flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              MULAI PRESENSI
             </Link>
             <Link href="/login" id="cta-admin-btn"
               className="btn bg-transparent text-white border-white btn-lg hover:bg-white hover:text-black">

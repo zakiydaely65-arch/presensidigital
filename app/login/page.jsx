@@ -115,7 +115,7 @@ export default function LoginPage() {
               PORTAL AUTENTIKASI
             </div>
             <h2 className="text-4xl font-black text-black tracking-tight leading-tight">
-              SELAMAT<br/>DATANG 👋
+              SELAMAT<br/>DATANG
             </h2>
             <p className="text-black/60 font-bold mt-3">Masuk dengan kredensial Anda untuk melanjutkan.</p>
           </div>
@@ -184,8 +184,9 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-8 p-4 border-2 border-black bg-white shadow-[4px_4px_0px_0px_#000]">
-            <p className="text-xs font-bold text-black/60 uppercase tracking-widest">
-              ⚠ Mengalami kendala? Hubungi admin sistem Anda.
+            <p className="text-xs font-bold text-black/60 uppercase tracking-widest flex items-center gap-2">
+              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+              Mengalami kendala? Hubungi admin sistem Anda.
             </p>
           </div>
         </div>

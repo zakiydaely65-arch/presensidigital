@@ -144,7 +144,16 @@ export default function SiswaPage() {
     }
   };
 
-  const getStatusIcon = (status) => ({ hadir: '✓', hadir_luar_radius: '◎', izin: '—', sakit: '+', pulang: '←' }[status] || '•');
+  const getStatusIcon = (status) => {
+    const icons = {
+      hadir: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>,
+      hadir_luar_radius: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>,
+      izin: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
+      sakit: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+      pulang: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>,
+    };
+    return icons[status] || <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10"/></svg>;
+  };
   const getStatusBadge = (status) => ({ hadir: 'badge-success', hadir_luar_radius: 'badge-warning', izin: 'badge-warning', sakit: 'badge-danger', pulang: 'badge-primary' }[status] || 'badge-primary');
   const hasStatus = (status) => todayPresensi.some(p => p.status === status);
   const alreadyTidakHadir = hasStatus('izin') || hasStatus('sakit');
@@ -178,8 +187,8 @@ export default function SiswaPage() {
         <div className="text-xs font-bold text-black/50 tracking-[0.2em] uppercase">{sub}</div>
       </div>
       {logged && (
-        <span className="absolute top-3 right-3 bg-[#00FF94] border-2 border-black text-black text-[9px] font-black px-2 py-0.5 tracking-widest uppercase shadow-[2px_2px_0px_0px_#000]">
-          ✓ LOGGED
+        <span className="absolute top-3 right-3 bg-[#00FF94] border-2 border-black text-black text-[9px] font-black px-2 py-0.5 tracking-widest uppercase shadow-[2px_2px_0px_0px_#000] flex items-center gap-1">
+          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg> LOGGED
         </span>
       )}
     </button>
@@ -193,7 +202,10 @@ export default function SiswaPage() {
         <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000]">
           {/* Header strip */}
           <div className="bg-black text-[#FFE600] px-6 py-3 flex items-center justify-between border-b-2 border-black">
-            <span className="font-black text-xs tracking-[0.3em] uppercase">📡 Status Geolokasi GPS</span>
+            <span className="font-black text-xs tracking-[0.3em] uppercase flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" /></svg>
+              Status Geolokasi GPS
+            </span>
             <button
               onClick={requestLocation}
               className="w-8 h-8 bg-[#FF90E8] border-2 border-[#FFE600] flex items-center justify-center hover:bg-[#FFE600] transition-colors"
@@ -208,14 +220,14 @@ export default function SiswaPage() {
           <div className="p-6">
             {accuracy !== null && accuracy > 100 && (
               <div className="mb-4 p-4 bg-[#FFE600] border-2 border-black shadow-[3px_3px_0px_0px_#000] flex gap-3 items-start">
-                <span className="text-lg">⚠</span>
+                <svg className="w-5 h-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                 <p className="text-sm font-bold">Akurasi sinyal lemah (±{accuracy}m). Pindah ke area terbuka untuk sinyal lebih kuat.</p>
               </div>
             )}
 
             {locationError ? (
               <div className="flex flex-col items-center py-10 gap-4">
-                <div className="text-5xl">📵</div>
+                <svg className="w-14 h-14 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
                 <p className="text-red-600 font-black text-center tracking-tight">{locationError}</p>
                 <button onClick={requestLocation} className="btn btn-danger">KALIBRASI ULANG</button>
               </div>
@@ -223,8 +235,12 @@ export default function SiswaPage() {
               <div className={`p-5 border-2 border-black shadow-[4px_4px_0px_0px_#000] flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between
                 ${isAtSchool ? 'bg-[#00FF94]' : 'bg-[#FF90E8]'}`}>
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-black border-2 border-black flex items-center justify-center text-2xl shrink-0">
-                    {isAtSchool ? '✅' : '📍'}
+                  <div className="w-14 h-14 bg-black border-2 border-black flex items-center justify-center shrink-0">
+                    {isAtSchool ? (
+                      <svg className="w-7 h-7 text-[#00FF94]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                    ) : (
+                      <svg className="w-7 h-7 text-[#FFE600]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    )}
                   </div>
                   <div>
                     <h3 className="text-xl font-black tracking-tight">
@@ -251,7 +267,10 @@ export default function SiswaPage() {
         {/* === ACTION PANEL === */}
         <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000]">
           <div className="bg-black text-[#FF90E8] px-6 py-3 border-b-2 border-black">
-            <span className="font-black text-xs tracking-[0.3em] uppercase">⚡ Terminal Presensi</span>
+            <span className="font-black text-xs tracking-[0.3em] uppercase flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Terminal Presensi
+            </span>
           </div>
 
           <div className="p-6">
@@ -260,8 +279,12 @@ export default function SiswaPage() {
             </p>
 
             {message.text && (
-              <div className={`alert ${message.type === 'success' ? 'alert-success' : 'alert-error'} mb-6`}>
-                {message.type === 'success' ? '✓' : '✗'} {message.text}
+              <div className={`alert ${message.type === 'success' ? 'alert-success' : 'alert-error'} mb-6 flex items-center gap-2`}>
+                {message.type === 'success'
+                  ? <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                  : <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                }
+                {message.text}
               </div>
             )}
 
@@ -270,13 +293,13 @@ export default function SiswaPage() {
                 {isAtSchool ? (
                   <>
                     <ActionButton id="btn-hadir" label="Catat Masuk" sub="Hadir Di Lokasi"
-                      icon={<span className="text-2xl font-black text-black">✓</span>}
+                      icon={<svg className="w-7 h-7 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
                       color="bg-[#00FF94]" bgColor="bg-white"
                       onClick={() => handlePresensi('hadir')}
                       disabled={submitting || hasStatus('hadir') || hasStatus('hadir_luar_radius')}
                       logged={hasStatus('hadir') || hasStatus('hadir_luar_radius')} />
                     <ActionButton id="btn-pulang" label="Akhiri Sesi" sub="Pulang"
-                      icon={<span className="text-2xl font-black text-white">←</span>}
+                      icon={<svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>}
                       color="bg-black" bgColor="bg-white"
                       onClick={() => handlePresensi('pulang')}
                       disabled={submitting || hasStatus('pulang')}
@@ -285,19 +308,19 @@ export default function SiswaPage() {
                 ) : (
                   <>
                     <ActionButton id="btn-hadir-luar" label="Hadir Off-Site" sub="Luar Radius"
-                      icon={<span className="text-2xl">📍</span>}
+                      icon={<svg className="w-7 h-7 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>}
                       color="bg-[#FFE600]" bgColor="bg-white"
                       onClick={() => handlePresensi('hadir_luar_radius')}
                       disabled={submitting || hasStatus('hadir_luar_radius') || hasStatus('hadir') || isAtSchool === null}
                       logged={hasStatus('hadir_luar_radius') || hasStatus('hadir')} />
                     <ActionButton id="btn-izin" label="Izin Absen" sub="Kepentingan"
-                      icon={<span className="text-2xl">📄</span>}
+                      icon={<svg className="w-7 h-7 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
                       color="bg-[#FF90E8]" bgColor="bg-white"
                       onClick={() => handlePresensi('izin')}
                       disabled={submitting || alreadyTidakHadir || isAtSchool === null}
                       logged={alreadyTidakHadir} />
                     <ActionButton id="btn-sakit" label="Surat Sakit" sub="Medis"
-                      icon={<span className="text-2xl">🏥</span>}
+                      icon={<svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
                       color="bg-[#FF3333]" bgColor="bg-white"
                       onClick={() => handlePresensi('sakit')}
                       disabled={submitting || alreadyTidakHadir || isAtSchool === null}
@@ -319,7 +342,10 @@ export default function SiswaPage() {
         {/* === HISTORY LOG === */}
         <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000]">
           <div className="bg-[#FF90E8] border-b-2 border-black px-6 py-3 flex items-center justify-between">
-            <span className="font-black text-xs tracking-[0.3em] uppercase text-black">📋 Log Audit Hari Ini</span>
+            <span className="font-black text-xs tracking-[0.3em] uppercase text-black flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
+              Log Audit Hari Ini
+            </span>
             <span className="badge badge-primary">{todayPresensi.length} ENTRI</span>
           </div>
 
@@ -346,7 +372,9 @@ export default function SiswaPage() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <div className="text-6xl mb-4">📭</div>
+                <div className="flex justify-center mb-4">
+                  <svg className="w-16 h-16 text-black/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                </div>
                 <p className="font-black text-black/50 uppercase tracking-[0.3em] text-sm">LOG KOSONG HARI INI</p>
               </div>
             )}
@@ -356,15 +384,19 @@ export default function SiswaPage() {
         {/* === SECURITY PANEL === */}
         <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000] p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <div className="font-black text-black text-lg tracking-tight">🔐 Keamanan Akun</div>
+            <div className="font-black text-black text-lg tracking-tight flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              Keamanan Akun
+            </div>
             <div className="text-sm font-bold text-black/60 mt-1">Ganti kata sandi Anda secara berkala.</div>
           </div>
           <button
             id="change-password-btn"
             onClick={() => { setShowPasswordModal(true); setPasswordMessage({ type: '', text: '' }); setPasswordForm({ sandiLama: '', sandiBaru: '', konfirmasiSandi: '' }); }}
-            className="btn btn-accent whitespace-nowrap"
+            className="btn btn-accent whitespace-nowrap flex items-center gap-2"
           >
-            🔑 UBAH SANDI
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>
+            UBAH SANDI
           </button>
         </div>
       </div>
@@ -435,7 +467,12 @@ export default function SiswaPage() {
                 <button type="submit" className="btn btn-primary flex-[2]" disabled={passwordSubmitting}>
                   {passwordSubmitting ? (
                     <><div className="w-4 h-4 border-2 border-[#FFE600] border-t-transparent animate-spin" /> MENYIMPAN...</>
-                  ) : '🔒 PERBARUI SANDI'}
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                      PERBARUI SANDI
+                    </span>
+                  )}
                 </button>
               </div>
             </form>
