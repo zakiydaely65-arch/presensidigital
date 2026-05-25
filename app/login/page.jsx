@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/components/Toast';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -9,6 +10,7 @@ export default function LoginPage() {
   const [sandi, setSandi] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { showToast, ToastContainer } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,6 +37,7 @@ export default function LoginPage() {
       }
     } catch (err) {
       setError(err.message);
+      showToast(err.message || 'Login gagal. Periksa kode dan sandi Anda.', 'error');
     } finally {
       setLoading(false);
     }

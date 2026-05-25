@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { SCHOOL_COORDS, SCHOOL_RADIUS } from '@/lib/constants';
+import { useToast } from '@/components/Toast';
 
 export default function SiswaPage() {
   const [user, setUser] = useState(null);
@@ -19,6 +20,7 @@ export default function SiswaPage() {
   const [passwordForm, setPasswordForm] = useState({ sandiLama: '', sandiBaru: '', konfirmasiSandi: '' });
   const [passwordMessage, setPasswordMessage] = useState({ type: '', text: '' });
   const [passwordSubmitting, setPasswordSubmitting] = useState(false);
+  const { showToast, ToastContainer } = useToast();
 
   const fetchUser = async () => {
     try {
@@ -96,7 +98,7 @@ export default function SiswaPage() {
   };
 
   const handlePresensi = async (status) => {
-    if (!location) { setMessage({ type: 'error', text: 'Sistem tidak dapat mengkonfirmasi lokasi Anda.' }); return; }
+    if (!location) { setMessage({ type: 'error', text: 'Sistem tidak dapat mengkonfirmasi lokasi Anda.' }); showToast('Sistem tidak dapat mengkonfirmasi lokasi Anda.', 'error'); return; }
     setSubmitting(true);
     setMessage({ type: '', text: '' });
     try {
@@ -108,9 +110,11 @@ export default function SiswaPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setMessage({ type: 'success', text: data.message });
+      showToast(data.message, 'success');
       fetchTodayPresensi();
     } catch (err) {
       setMessage({ type: 'error', text: err.message });
+      showToast(err.message || 'Gagal mencatat presensi.', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -135,10 +139,12 @@ export default function SiswaPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setPasswordMessage({ type: 'success', text: data.message });
+      showToast(data.message || 'Kata sandi berhasil diperbarui.', 'success');
       setPasswordForm({ sandiLama: '', sandiBaru: '', konfirmasiSandi: '' });
       setTimeout(() => { setShowPasswordModal(false); setPasswordMessage({ type: '', text: '' }); }, 2000);
     } catch (err) {
       setPasswordMessage({ type: 'error', text: err.message });
+      showToast(err.message || 'Gagal memperbarui kata sandi.', 'error');
     } finally {
       setPasswordSubmitting(false);
     }
@@ -196,6 +202,7 @@ export default function SiswaPage() {
 
   return (
     <>
+      <ToastContainer />
       <div className="space-y-6 animate-fadeIn">
 
         {/* === GPS PANEL === */}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useToast } from '@/components/Toast';
 
 export default function SiswaPage() {
     const [siswa, setSiswa] = useState([]);
@@ -20,6 +21,7 @@ export default function SiswaPage() {
     });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const { showToast, ToastContainer } = useToast();
 
     useEffect(() => {
         fetchSiswa();
@@ -55,6 +57,7 @@ export default function SiswaPage() {
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error);
                 setSuccess('Data siswa berhasil diperbarui');
+                showToast('Data siswa berhasil diperbarui.', 'success');
             } else {
                 const res = await fetch('/api/siswa', {
                     method: 'POST',
@@ -65,6 +68,7 @@ export default function SiswaPage() {
                 if (!res.ok) throw new Error(data.error);
                 setShowCredentials(data.data.credentials);
                 setSuccess('Siswa berhasil ditambahkan');
+                showToast('Siswa berhasil ditambahkan.', 'success');
             }
 
             fetchSiswa();
@@ -74,6 +78,7 @@ export default function SiswaPage() {
             }
         } catch (err) {
             setError(err.message);
+            showToast(err.message || 'Terjadi kesalahan.', 'error');
         }
     };
 
@@ -94,9 +99,11 @@ export default function SiswaPage() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
             setSuccess('Siswa berhasil dihapus');
+            showToast('Siswa berhasil dihapus.', 'success');
             fetchSiswa();
         } catch (err) {
             setError(err.message);
+            showToast(err.message || 'Gagal menghapus siswa.', 'error');
         } finally {
             setShowConfirmModal(false);
         }
@@ -131,9 +138,11 @@ export default function SiswaPage() {
                 });
                 setShowModal(true);
                 setSuccess(`Sandi untuk ${s.nama} berhasil direset.`);
+                showToast(`Sandi untuk ${s.nama} berhasil direset.`, 'success');
             }, 300);
         } catch (err) {
             setError(err.message);
+            showToast(err.message || 'Gagal mereset sandi.', 'error');
             setShowConfirmModal(false);
         }
     };
@@ -184,6 +193,7 @@ export default function SiswaPage() {
 
     return (
         <>
+        <ToastContainer />
         <div className="max-w-7xl mx-auto space-y-6 md:space-y-8 animate-fadeIn">
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 pb-4 md:pb-6 border-b border-black">
                 <div>

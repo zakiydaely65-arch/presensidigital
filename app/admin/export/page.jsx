@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useToast } from '@/components/Toast';
 
 export default function ExportPage() {
     const [startDate, setStartDate] = useState('');
@@ -8,10 +9,12 @@ export default function ExportPage() {
     const [organisasi, setOrganisasi] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const { showToast, ToastContainer } = useToast();
 
     const handleExport = async () => {
         if (!startDate || !endDate) {
             setError('Pilih rentang tanggal terlebih dahulu');
+            showToast('Pilih rentang tanggal terlebih dahulu.', 'error');
             return;
         }
 
@@ -39,8 +42,10 @@ export default function ExportPage() {
             a.click();
             a.remove();
             window.URL.revokeObjectURL(downloadUrl);
+            showToast('File berhasil diunduh.', 'success');
         } catch (err) {
             setError(err.message);
+            showToast(err.message || 'Gagal mengekspor data.', 'error');
         } finally {
             setLoading(false);
         }
@@ -79,6 +84,7 @@ export default function ExportPage() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-5 md:space-y-8 animate-fadeIn">
+            <ToastContainer />
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 pb-4 md:pb-6 border-b border-black">
                 <div>
                     <h1 className="text-2xl md:text-4xl font-extrabold text-black font-black tracking-tight">Eksportasi Laporan</h1>

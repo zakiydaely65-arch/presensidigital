@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useToast } from '@/components/Toast';
 
 export default function JamPelajaranPage() {
     const [activeTab, setActiveTab] = useState('rekap'); // 'rekap', 'input', 'jadwal'
@@ -26,6 +27,7 @@ export default function JamPelajaranPage() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState('');
     const [error, setError] = useState('');
+    const { showToast, ToastContainer } = useToast();
 
     useEffect(() => {
         if (activeTab === 'rekap') fetchRekap();
@@ -164,8 +166,10 @@ export default function JamPelajaranPage() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
             setSuccess('Catatan JP berhasil disimpan!');
+            showToast('Catatan JP berhasil disimpan!', 'success');
         } catch (err) {
             setError(err.message);
+            showToast(err.message || 'Gagal menyimpan presensi JP.', 'error');
         } finally {
             setLoading(false);
         }
@@ -273,6 +277,7 @@ export default function JamPelajaranPage() {
                  });
              }
              setSuccess(jadwalMode === 'custom' ? `Jadwal custom tanggal ${customDate} berhasil disimpan` : `Jadwal hari ${selectedHari} berhasil diperbarui`);
+             showToast(jadwalMode === 'custom' ? `Jadwal custom ${customDate} berhasil disimpan` : `Jadwal ${selectedHari} berhasil diperbarui`, 'success');
              
              // Refresh list to get new IDs
              if (jadwalMode === 'template') fetchJadwal(selectedHari);
@@ -280,20 +285,39 @@ export default function JamPelajaranPage() {
              
          } catch (err) {
              setError('Gagal menyimpan jadwal');
+             showToast('Gagal menyimpan jadwal.', 'error');
          } finally {
              setLoading(false);
          }
     };
 
-    const deleteCustomJadwal = async () => {
-        if(!confirm('Anda yakin ingin mereset jadwal custom tanggal ini kembali ke template default?')) return;
+    // Validasi: hanya izinkan Senin-Jumat untuk custom jadwal
+    const isWeekend = (dateStr) => {
+        if (!dateStr) return false;
+        const day = new Date(dateStr).getDay(); // 0=Minggu, 6=Sabtu
+        return day === 0 || day === 6;
+    };
+
+    const handleCustomDateChange = (e) => {
+        const val = e.target.value;
+        if (isWeekend(val)) {
+            setError('Jadwal custom hanya bisa dibuat untuk hari Senin sampai Jumat.');
+            return;
+        }
+        setError('');
+        setCustomDate(val);
+    };
+
+    const deleteCustomJadwal = async () => {        if(!confirm('Anda yakin ingin mereset jadwal custom tanggal ini kembali ke template default?')) return;
         setLoading(true);
         try {
             await fetch(`/api/jadwal-jp?tanggal_custom=${customDate}`, { method: 'DELETE' });
             setSuccess('Jadwal custom berhasil dihapus. Kembali ke default.');
+            showToast('Jadwal custom berhasil dihapus.', 'success');
             fetchCustomJadwal(customDate);
         } catch (err) {
             setError('Gagal menghapus jadwal custom');
+            showToast('Gagal menghapus jadwal custom.', 'error');
         } finally {
             setLoading(false);
         }
@@ -354,6 +378,7 @@ export default function JamPelajaranPage() {
 
     return (
         <div className="max-w-7xl mx-auto space-y-6 md:space-y-8 animate-fadeIn">
+            <ToastContainer />
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 pb-4 md:pb-6 border-b-4 border-black">
                 <div>
                     <h1 className="text-2xl md:text-4xl font-black text-black tracking-tight">Akumulasi Jam Pelajaran</h1>
@@ -562,7 +587,7 @@ export default function JamPelajaranPage() {
                     {jadwalMode === 'template' ? (
                         <>
                             <div className="flex flex-wrap gap-2">
-                                {['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'].map(h => (
+                                {['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'].map(h => (
                                     <button
                                         key={h}
                                         className={`btn border-2 border-black shadow-[3px_3px_0px_0px_#000] text-xs font-black uppercase ${selectedHari === h ? 'bg-primary text-white translate-y-[2px] translate-x-[2px] shadow-[1px_1px_0px_0px_#000]' : 'bg-white text-black hover:bg-slate-50'}`}
@@ -587,13 +612,23 @@ export default function JamPelajaranPage() {
                                 
                                 <div className="flex flex-col sm:flex-row items-end gap-4">
                                     <div className="w-full sm:w-auto">
-                                        <label className="block text-[10px] font-bold uppercase tracking-widest mb-2">Pilih Tanggal</label>
+                                        <label className="block text-[10px] font-bold uppercase tracking-widest mb-2">Pilih Tanggal (Senin – Jumat)</label>
                                         <input 
                                             type="date" 
                                             className="input py-2 text-sm w-full"
                                             value={customDate}
-                                            onChange={(e) => setCustomDate(e.target.value)}
+                                            onChange={handleCustomDateChange}
                                         />
+                                        {customDate && (() => {
+                                            const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                                            const day = dayNames[new Date(customDate).getDay()];
+                                            const isWE = day === 'Sabtu' || day === 'Minggu';
+                                            return (
+                                                <p className={`text-[10px] font-bold mt-1 uppercase tracking-widest ${isWE ? 'text-[#FF3333]' : 'text-slate-400'}`}>
+                                                    {isWE ? `${day} — tidak tersedia` : day}
+                                                </p>
+                                            );
+                                        })()}
                                     </div>
                                     {jadwalList.some(j => j.is_custom) && (
                                         <button className="btn bg-[#FF3333] text-white border-2 border-black shadow-[3px_3px_0px_0px_#000] py-2 px-4 font-black text-xs flex items-center gap-2" onClick={deleteCustomJadwal}>

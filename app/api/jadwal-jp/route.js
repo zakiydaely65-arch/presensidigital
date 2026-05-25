@@ -5,39 +5,99 @@ import { getUserFromRequest } from '@/lib/auth';
 export const dynamic = 'force-dynamic';
 
 const getHardcodedSchedule = (hari) => {
-    const isJumat = hari.toLowerCase() === 'jumat';
-    const totalJp = isJumat ? 4 : 8;
-    
-    const schedule = [];
-    let currentHour = 7;
-    let currentMin = 0;
+    const hariLower = hari.toLowerCase();
 
-    const addTime = (minutes) => {
-        currentMin += minutes;
-        currentHour += Math.floor(currentMin / 60);
-        currentMin = currentMin % 60;
+    // Jadwal per hari sesuai dokumen Pengaturan Jam KBM Smt 2 2025/2026
+    const schedules = {
+        senin: [
+            // JP 1-3: 08:10, 08:45, 09:20 (durasi 35 menit)
+            // Istirahat 1: 09:55-10:10
+            // JP 4-6: 10:10, 10:45, 11:20 (durasi 35 menit)
+            // Istirahat 2: 11:55-12:55
+            // JP 7-10: 12:55, 13:30, 14:05, 14:40 (durasi 35 menit)
+            { jp_ke: 1,  mulai: '08:10', durasi_menit: 35 },
+            { jp_ke: 2,  mulai: '08:45', durasi_menit: 35 },
+            { jp_ke: 3,  mulai: '09:20', durasi_menit: 35 },
+            { jp_ke: 4,  mulai: '10:10', durasi_menit: 35 },
+            { jp_ke: 5,  mulai: '10:45', durasi_menit: 35 },
+            { jp_ke: 6,  mulai: '11:20', durasi_menit: 35 },
+            { jp_ke: 7,  mulai: '12:55', durasi_menit: 35 },
+            { jp_ke: 8,  mulai: '13:30', durasi_menit: 35 },
+            { jp_ke: 9,  mulai: '14:05', durasi_menit: 35 },
+            { jp_ke: 10, mulai: '14:40', durasi_menit: 35 },
+        ],
+        selasa: [
+            // JP 1-4: 07:15, 07:55, 08:35, 09:15 (durasi 40 menit)
+            // Istirahat 1: 09:55-10:10
+            // JP 5-7: 10:10, 10:45, 11:20 (durasi 35 menit)
+            // Istirahat 2: 11:55-12:55
+            // JP 8-11: 12:55, 13:30, 14:05, 14:40 (durasi 35 menit)
+            { jp_ke: 1,  mulai: '07:15', durasi_menit: 40 },
+            { jp_ke: 2,  mulai: '07:55', durasi_menit: 40 },
+            { jp_ke: 3,  mulai: '08:35', durasi_menit: 40 },
+            { jp_ke: 4,  mulai: '09:15', durasi_menit: 40 },
+            { jp_ke: 5,  mulai: '10:10', durasi_menit: 35 },
+            { jp_ke: 6,  mulai: '10:45', durasi_menit: 35 },
+            { jp_ke: 7,  mulai: '11:20', durasi_menit: 35 },
+            { jp_ke: 8,  mulai: '12:55', durasi_menit: 35 },
+            { jp_ke: 9,  mulai: '13:30', durasi_menit: 35 },
+            { jp_ke: 10, mulai: '14:05', durasi_menit: 35 },
+            { jp_ke: 11, mulai: '14:40', durasi_menit: 35 },
+        ],
+        rabu: [
+            // JP 1-3: 07:45, 08:25, 09:05 (durasi 40 menit)
+            // Istirahat 1: 09:45-10:00
+            // JP 4-6: 10:00, 10:40, 11:20 (durasi 40 menit)
+            // Istirahat 2: 12:00-13:00
+            // JP 7-10: 13:00, 13:35, 14:10, 14:45 (durasi 35 menit)
+            { jp_ke: 1,  mulai: '07:45', durasi_menit: 40 },
+            { jp_ke: 2,  mulai: '08:25', durasi_menit: 40 },
+            { jp_ke: 3,  mulai: '09:05', durasi_menit: 40 },
+            { jp_ke: 4,  mulai: '10:00', durasi_menit: 40 },
+            { jp_ke: 5,  mulai: '10:40', durasi_menit: 40 },
+            { jp_ke: 6,  mulai: '11:20', durasi_menit: 40 },
+            { jp_ke: 7,  mulai: '13:00', durasi_menit: 35 },
+            { jp_ke: 8,  mulai: '13:35', durasi_menit: 35 },
+            { jp_ke: 9,  mulai: '14:10', durasi_menit: 35 },
+            { jp_ke: 10, mulai: '14:45', durasi_menit: 35 },
+        ],
+        kamis: [
+            // Sama dengan Selasa
+            { jp_ke: 1,  mulai: '07:15', durasi_menit: 40 },
+            { jp_ke: 2,  mulai: '07:55', durasi_menit: 40 },
+            { jp_ke: 3,  mulai: '08:35', durasi_menit: 40 },
+            { jp_ke: 4,  mulai: '09:15', durasi_menit: 40 },
+            { jp_ke: 5,  mulai: '10:10', durasi_menit: 35 },
+            { jp_ke: 6,  mulai: '10:45', durasi_menit: 35 },
+            { jp_ke: 7,  mulai: '11:20', durasi_menit: 35 },
+            { jp_ke: 8,  mulai: '12:55', durasi_menit: 35 },
+            { jp_ke: 9,  mulai: '13:30', durasi_menit: 35 },
+            { jp_ke: 10, mulai: '14:05', durasi_menit: 35 },
+            { jp_ke: 11, mulai: '14:40', durasi_menit: 35 },
+        ],
+        jumat: [
+            // JP 1-4: 07:30, 08:05, 08:40, 09:15 (durasi 35 menit)
+            // Istirahat: 09:50-10:20
+            // JP 5-6: 10:20, 10:55 (durasi 35 menit)
+            { jp_ke: 1, mulai: '07:30', durasi_menit: 35 },
+            { jp_ke: 2, mulai: '08:05', durasi_menit: 35 },
+            { jp_ke: 3, mulai: '08:40', durasi_menit: 35 },
+            { jp_ke: 4, mulai: '09:15', durasi_menit: 35 },
+            { jp_ke: 5, mulai: '10:20', durasi_menit: 35 },
+            { jp_ke: 6, mulai: '10:55', durasi_menit: 35 },
+        ],
+        sabtu: [],
     };
 
-    const formatTime = () => `${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`;
-
-    for (let i = 1; i <= totalJp; i++) {
-        // Istirahat pertama
-        if (i === 5) {
-            addTime(15); // Istirahat 15 menit di jam 09:00
-        }
-        
-        schedule.push({
-            hari,
-            jp_ke: i,
-            mulai: formatTime(),
-            durasi_menit: 30,
-            is_custom: false,
-            tanggal_custom: null
-        });
-        
-        addTime(30); // 30 menit per JP
-    }
-    return schedule;
+    const daySchedule = schedules[hariLower] || schedules['senin'];
+    return daySchedule.map(jp => ({
+        hari,
+        jp_ke: jp.jp_ke,
+        mulai: jp.mulai,
+        durasi_menit: jp.durasi_menit,
+        is_custom: false,
+        tanggal_custom: null
+    }));
 };
 
 export async function GET(request) {
