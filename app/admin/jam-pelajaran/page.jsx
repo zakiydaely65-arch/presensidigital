@@ -3,6 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/components/Toast';
 
+// Safe parsing of YYYY-MM-DD date strings in local timezone
+const parseLocalDate = (dateStr) => {
+    if (!dateStr) return new Date();
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
+};
+
 export default function JamPelajaranPage() {
     const [activeTab, setActiveTab] = useState('rekap'); // 'rekap', 'input', 'jadwal'
     
@@ -51,13 +58,19 @@ export default function JamPelajaranPage() {
                 if (rekapPeriod === 'hari_ini') {
                     start = end = today.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
                 } else if (rekapPeriod === 'minggu_ini') {
-                    const first = today.getDate() - today.getDay() + 1;
-                    const last = first + 6;
-                    start = new Date(today.setDate(first)).toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
-                    end = new Date(today.setDate(last)).toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
+                    const day = today.getDay();
+                    const monday = new Date(today);
+                    monday.setDate(today.getDate() - day + (day === 0 ? -6 : 1));
+                    const sunday = new Date(monday);
+                    sunday.setDate(monday.getDate() + 6);
+                    start = monday.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
+                    end = sunday.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
                 } else if (rekapPeriod === 'bulan_ini') {
-                    start = new Date(today.getFullYear(), today.getMonth(), 1).toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
-                    end = new Date(today.getFullYear(), today.getMonth() + 1, 0).toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
+                    // Safe calculation of first and last day of the current month in local time
+                    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    start = startOfMonth.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
+                    end = endOfMonth.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
                 }
                 url += `startDate=${start}&endDate=${end}`;
             }
@@ -82,7 +95,7 @@ export default function JamPelajaranPage() {
             
             // Get Jadwal for that day
             const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-            const dateObj = new Date(inputDate);
+            const dateObj = parseLocalDate(inputDate);
             const dayName = dayNames[dateObj.getDay()];
             
             // Try fetch custom first, fallback to day name
@@ -195,7 +208,7 @@ export default function JamPelajaranPage() {
         setLoading(true);
         try {
             const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-            const dayName = dayNames[new Date(date).getDay()];
+            const dayName = dayNames[parseLocalDate(date).getDay()];
             const res = await fetch(`/api/jadwal-jp?tanggal_custom=${date}&hari=${dayName}`);
             const data = await res.json();
             if (data.success) {
@@ -294,7 +307,7 @@ export default function JamPelajaranPage() {
     // Validasi: hanya izinkan Senin-Jumat untuk custom jadwal
     const isWeekend = (dateStr) => {
         if (!dateStr) return false;
-        const day = new Date(dateStr).getDay(); // 0=Minggu, 6=Sabtu
+        const day = parseLocalDate(dateStr).getDay(); // 0=Minggu, 6=Sabtu
         return day === 0 || day === 6;
     };
 
@@ -341,36 +354,32 @@ export default function JamPelajaranPage() {
                             <div className="flex-1 flex gap-4 w-full">
                                 <div className="flex-1">
                                     <label className="text-[10px] font-bold tracking-widest uppercase mb-1 block">Mulai</label>
-                                    <input type="time" className="input w-full py-2 disabled:bg-slate-200 disabled:opacity-70" value={j.mulai ? j.mulai.substring(0,5) : ''} onChange={(e) => updateJadwalItem(idx, 'mulai', e.target.value)} disabled={jadwalMode === 'template'} />
+                                    <input type="time" className="input w-full py-2 disabled:bg-slate-200 disabled:opacity-70" value={j.mulai ? j.mulai.substring(0,5) : ''} onChange={(e) => updateJadwalItem(idx, 'mulai', e.target.value)} />
                                 </div>
                                 <div className="flex-1">
                                     <label className="text-[10px] font-bold tracking-widest uppercase mb-1 block">Durasi (Menit)</label>
-                                    <input type="number" className="input w-full py-2 disabled:bg-slate-200 disabled:opacity-70" value={j.durasi_menit || ''} onChange={(e) => updateJadwalItem(idx, 'durasi_menit', parseInt(e.target.value))} disabled={jadwalMode === 'template'} />
+                                    <input type="number" className="input w-full py-2 disabled:bg-slate-200 disabled:opacity-70" value={j.durasi_menit || ''} onChange={(e) => updateJadwalItem(idx, 'durasi_menit', parseInt(e.target.value))} />
                                 </div>
                             </div>
-                            {jadwalMode === 'custom' && (
-                                <button className="btn bg-[#FF3333] text-white p-2 border-2 border-black hover:bg-black transition-colors" onClick={() => deleteJpRow(idx)} title="Hapus JP">
-                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="square" strokeLinejoin="miter" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                </button>
-                            )}
+                            <button className="btn bg-[#FF3333] text-white p-2 border-2 border-black hover:bg-black transition-colors" onClick={() => deleteJpRow(idx)} title="Hapus JP">
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="square" strokeLinejoin="miter" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            </button>
                         </div>
                     ))}
                     
-                    {jadwalMode === 'custom' && (
-                        <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-                            <button className="btn border-2 border-black hover:bg-slate-100 py-3 px-6 font-black w-full sm:w-auto" onClick={addJpRow} disabled={loading}>
-                                + TAMBAH JP
-                            </button>
-                            <button className="btn btn-primary shadow-[4px_4px_0px_0px_#000] py-3 px-8 font-black w-full sm:w-auto" onClick={saveJadwal} disabled={loading}>
-                                {loading ? 'MENYIMPAN...' : (
-                                <span className="flex items-center gap-2">
-                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
-                                    SIMPAN JADWAL
-                                </span>
-                            )}
-                            </button>
-                        </div>
-                    )}
+                    <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <button className="btn border-2 border-black hover:bg-slate-100 py-3 px-6 font-black w-full sm:w-auto" onClick={addJpRow} disabled={loading}>
+                            + TAMBAH JP
+                        </button>
+                        <button className="btn btn-primary shadow-[4px_4px_0px_0px_#000] py-3 px-8 font-black w-full sm:w-auto" onClick={saveJadwal} disabled={loading}>
+                            {loading ? 'MENYIMPAN...' : (
+                            <span className="flex items-center gap-2">
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
+                                SIMPAN JADWAL
+                            </span>
+                        )}
+                        </button>
+                    </div>
                 </div>
             )}
         </>
@@ -621,7 +630,7 @@ export default function JamPelajaranPage() {
                                         />
                                         {customDate && (() => {
                                             const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-                                            const day = dayNames[new Date(customDate).getDay()];
+                                            const day = dayNames[parseLocalDate(customDate).getDay()];
                                             const isWE = day === 'Sabtu' || day === 'Minggu';
                                             return (
                                                 <p className={`text-[10px] font-bold mt-1 uppercase tracking-widest ${isWE ? 'text-[#FF3333]' : 'text-slate-400'}`}>

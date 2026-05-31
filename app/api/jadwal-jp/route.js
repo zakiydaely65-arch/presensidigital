@@ -118,10 +118,24 @@ export async function GET(request) {
             if (data && data.length > 0) {
                 return NextResponse.json({ success: true, data });
             }
-            // Fallback to hardcoded template if no custom schedule
+            // Fallback to regular template in DB
+            const tmplQuery = supabase.from('jadwal_jp').select('*').eq('hari', hari).eq('is_custom', false).order('jp_ke', { ascending: true });
+            const { data: tmplData, error: tmplError } = await tmplQuery;
+            if (tmplError) throw tmplError;
+            if (tmplData && tmplData.length > 0) {
+                return NextResponse.json({ success: true, data: tmplData });
+            }
+            // Fallback to hardcoded template if no template in DB
             return NextResponse.json({ success: true, data: getHardcodedSchedule(hari) });
         } else {
-            // Get hardcoded templates for specific day
+            // Get templates for specific day from DB
+            const tmplQuery = supabase.from('jadwal_jp').select('*').eq('hari', hari).eq('is_custom', false).order('jp_ke', { ascending: true });
+            const { data: tmplData, error: tmplError } = await tmplQuery;
+            if (tmplError) throw tmplError;
+            if (tmplData && tmplData.length > 0) {
+                return NextResponse.json({ success: true, data: tmplData });
+            }
+            // Fallback to hardcoded template if no template in DB
             return NextResponse.json({ success: true, data: getHardcodedSchedule(hari) });
         }
     } catch (error) {
@@ -140,14 +154,9 @@ export async function POST(request) {
         const body = await request.json();
         const { id, hari, jp_ke, mulai, durasi_menit, is_custom, tanggal_custom } = body;
 
-        // Ensure we only save CUSTOM schedules to DB now
-        if (!is_custom) {
-             return NextResponse.json({ success: true, message: 'Template jadwal reguler bersifat konstan dan tidak disimpan di database.' });
-        }
-
         if (id) {
             const { data, error } = await supabase.from('jadwal_jp')
-                .update({ hari, jp_ke, mulai, durasi_menit, is_custom, tanggal_custom })
+                .update({ hari, jp_ke, mulai, durasi_menit, is_custom: !!is_custom, tanggal_custom: is_custom ? tanggal_custom : null })
                 .eq('id', id)
                 .select()
                 .single();
@@ -155,7 +164,7 @@ export async function POST(request) {
             return NextResponse.json({ success: true, data });
         } else {
             const { data, error } = await supabase.from('jadwal_jp')
-                .insert([{ hari, jp_ke, mulai, durasi_menit, is_custom, tanggal_custom }])
+                .insert([{ hari, jp_ke, mulai, durasi_menit, is_custom: !!is_custom, tanggal_custom: is_custom ? tanggal_custom : null }])
                 .select()
                 .single();
             if (error) throw error;
@@ -177,12 +186,16 @@ export async function DELETE(request) {
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
         const tanggal_custom = searchParams.get('tanggal_custom');
+        const hari = searchParams.get('hari');
 
         if (id) {
             const { error } = await supabase.from('jadwal_jp').delete().eq('id', id);
             if (error) throw error;
         } else if (tanggal_custom) {
             const { error } = await supabase.from('jadwal_jp').delete().eq('tanggal_custom', tanggal_custom).eq('is_custom', true);
+            if (error) throw error;
+        } else if (hari) {
+            const { error } = await supabase.from('jadwal_jp').delete().eq('hari', hari).eq('is_custom', false);
             if (error) throw error;
         }
 
