@@ -619,32 +619,32 @@ export default function JamPelajaranPage() {
                                 <h3 className="font-black text-xl">Custom Jadwal Untuk Acara/Event</h3>
                                 <p className="text-sm font-bold text-slate-500">Jadwal custom akan menggantikan template reguler khusus pada tanggal yang dipilih. Berguna jika ada pulang cepat atau acara khusus.</p>
                                 
-                                <div className="flex flex-col sm:flex-row items-end gap-4">
-                                    <div className="w-full sm:w-auto">
-                                        <label className="block text-[10px] font-bold uppercase tracking-widest mb-2">Pilih Tanggal (Senin – Jumat)</label>
+                                <div className="w-full sm:w-auto space-y-2">
+                                    <label className="block text-[10px] font-bold uppercase tracking-widest">Pilih Tanggal (Senin – Jumat)</label>
+                                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
                                         <input 
                                             type="date" 
-                                            className="input py-2 text-sm w-full"
+                                            className="input py-2 text-sm w-full sm:w-auto"
                                             value={customDate}
                                             onChange={handleCustomDateChange}
                                         />
-                                        {customDate && (() => {
-                                            const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-                                            const day = dayNames[parseLocalDate(customDate).getDay()];
-                                            const isWE = day === 'Sabtu' || day === 'Minggu';
-                                            return (
-                                                <p className={`text-[10px] font-bold mt-1 uppercase tracking-widest ${isWE ? 'text-[#FF3333]' : 'text-slate-400'}`}>
-                                                    {isWE ? `${day} — tidak tersedia` : day}
-                                                </p>
-                                            );
-                                        })()}
+                                        {jadwalList.some(j => j.is_custom) && (
+                                            <button className="btn bg-[#FF3333] text-white border-2 border-black shadow-[3px_3px_0px_0px_#000] py-3 px-4 font-black text-xs flex items-center justify-center gap-2" onClick={deleteCustomJadwal}>
+                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                                                HAPUS JADWAL CUSTOM (RESET)
+                                            </button>
+                                        )}
                                     </div>
-                                    {jadwalList.some(j => j.is_custom) && (
-                                        <button className="btn bg-[#FF3333] text-white border-2 border-black shadow-[3px_3px_0px_0px_#000] py-2 px-4 font-black text-xs flex items-center gap-2" onClick={deleteCustomJadwal}>
-                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-                                            HAPUS JADWAL CUSTOM (RESET)
-                                        </button>
-                                    )}
+                                    {customDate && (() => {
+                                        const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                                        const day = dayNames[parseLocalDate(customDate).getDay()];
+                                        const isWE = day === 'Sabtu' || day === 'Minggu';
+                                        return (
+                                            <p className={`text-[10px] font-bold mt-1 uppercase tracking-widest ${isWE ? 'text-[#FF3333]' : 'text-slate-400'}`}>
+                                                {isWE ? `${day} — tidak tersedia` : day}
+                                            </p>
+                                        );
+                                    })()}
                                 </div>
                             </div>
                             {renderJadwalEditor()}
