@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
 import { getUserFromRequest } from '@/lib/auth';
+import { runAutoAbsent } from '@/lib/absent';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,77 +38,9 @@ export async function POST(request) {
             );
         }
 
-        // 1. Get ALL active students
-        const { data: allSiswa, error: siswaError } = await supabase
-            .from('siswa')
-            .select('id');
+        const result = await runAutoAbsent(tanggal);
 
-        if (siswaError) throw siswaError;
-
-        if (!allSiswa || allSiswa.length === 0) {
-            return NextResponse.json({
-                success: true,
-                message: 'Tidak ada siswa terdaftar',
-                inserted: 0
-            });
-        }
-
-        // 2. Get all students who already have ANY attendance record on this date
-        const { data: existingRecords, error: presensiError } = await supabase
-            .from('presensi')
-            .select('siswa_id')
-            .eq('tanggal', tanggal);
-
-        if (presensiError) throw presensiError;
-
-        // Unique set of siswa_ids that already have a record
-        const presentSiswaIds = new Set(
-            (existingRecords || []).map(r => r.siswa_id)
-        );
-
-        // 3. Find students who have NO record at all
-        const absentSiswaIds = allSiswa
-            .map(s => s.id)
-            .filter(id => !presentSiswaIds.has(id));
-
-        if (absentSiswaIds.length === 0) {
-            return NextResponse.json({
-                success: true,
-                message: 'Semua siswa sudah memiliki catatan presensi pada tanggal ini',
-                inserted: 0
-            });
-        }
-
-        // 4. Insert "tidak_hadir" records for absent students
-        const recordsToInsert = absentSiswaIds.map(siswaId => ({
-            siswa_id: siswaId,
-            status: 'tidak_hadir',
-            tanggal: tanggal,
-            waktu: '00:00:00',
-            latitude: null,
-            longitude: null,
-            is_at_school: false
-        }));
-
-        // Insert in batches of 500 to avoid payload limits
-        let totalInserted = 0;
-        const batchSize = 500;
-
-        for (let i = 0; i < recordsToInsert.length; i += batchSize) {
-            const batch = recordsToInsert.slice(i, i + batchSize);
-            const { error: insertError } = await supabase
-                .from('presensi')
-                .insert(batch);
-
-            if (insertError) throw insertError;
-            totalInserted += batch.length;
-        }
-
-        return NextResponse.json({
-            success: true,
-            message: `${totalInserted} siswa ditandai tidak hadir pada ${tanggal}`,
-            inserted: totalInserted
-        });
+        return NextResponse.json(result);
 
     } catch (error) {
         console.error('Auto-absent error:', error);
@@ -118,3 +50,4 @@ export async function POST(request) {
         );
     }
 }
+
